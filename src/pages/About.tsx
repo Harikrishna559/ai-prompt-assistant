@@ -8,8 +8,13 @@ import {
   MapPin,
   Database,
   KeyRound,
-  History as HistoryIcon,
+  Rocket,
+  Code2,
+  Terminal,
+  SlidersHorizontal,
+  AlertCircle,
   Wand2,
+  Award,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 
@@ -76,39 +81,49 @@ export const About: React.FC = () => {
               step: '1',
               title: 'Enter Prompt',
               desc: 'Provide your initial thought, brief question, or raw task request.',
+              icon: <Terminal className="w-4 h-4 text-indigo-500" />,
             },
             {
               step: '2',
               title: 'Analyze Prompt',
               desc: 'Evaluated across four core dimensions: clarity, context, specificity, and completeness.',
+              icon: <SlidersHorizontal className="w-4 h-4 text-blue-500" />,
             },
             {
               step: '3',
               title: 'Identify Weaknesses',
               desc: 'Missing targets, ambiguous instructions, and lack of constraints are highlighted with actionable alerts.',
+              icon: <AlertCircle className="w-4 h-4 text-amber-500" />,
             },
             {
               step: '4',
               title: 'Improve Prompt',
               desc: 'Synthesizes an augmented prompt containing context, persona, structure, and guardrails.',
+              icon: <Wand2 className="w-4 h-4 text-purple-500" />,
             },
             {
               step: '5',
               title: 'Get Better Results',
               desc: 'Receive a clearer and more effective prompt ready for copy-paste with practical craftsmanship suggestions.',
+              icon: <Award className="w-4 h-4 text-emerald-500" />,
             },
           ].map((item) => (
             <div
               key={item.step}
-              className="flex items-start gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800"
+              className="flex items-start gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
             >
-              <span className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold shrink-0">
-                {item.step}
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  {item.title}
-                </h3>
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0">
+                {item.icon}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
+                    Step {item.step}
+                  </span>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {item.title}
+                  </h3>
+                </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   {item.desc}
                 </p>
@@ -161,50 +176,73 @@ export const About: React.FC = () => {
             Future Roadmap
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Planned upcoming capabilities for future phases:
+            Five sequential phases of product development:
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             {
-              title: 'Gemini API',
-              desc: 'Direct integration with Google DeepMind Gemini models for live, multi-modal prompt reasoning.',
+              phase: 'Phase 1',
+              title: 'Frontend',
+              desc: 'Production-quality UI/UX design, mock API layer, local state, responsive layouts, and light/dark theme.',
+              status: 'Completed',
+              icon: <Code2 className="w-4 h-4 text-emerald-500" />,
+              badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+            },
+            {
+              phase: 'Phase 2',
+              title: 'Gemini AI',
+              desc: 'Direct integration with Google DeepMind Gemini API models for automated prompt analysis and multi-modal refinement.',
+              status: 'Planned',
               icon: <Sparkles className="w-4 h-4 text-blue-500" />,
+              badgeClass: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
             },
             {
+              phase: 'Phase 3',
               title: 'Supabase',
-              desc: 'Cloud Postgres database for real-time prompt synchronization, tags, and team workspaces.',
-              icon: <Database className="w-4 h-4 text-emerald-500" />,
+              desc: 'Cloud Postgres database for real-time prompt synchronization, template tagging, and prompt versioning.',
+              status: 'Planned',
+              icon: <Database className="w-4 h-4 text-indigo-500" />,
+              badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
             },
             {
+              phase: 'Phase 4',
               title: 'Authentication',
-              desc: 'Secure user login, multi-factor authentication, and OAuth single sign-on.',
+              desc: 'Secure user login, OAuth 2.0 single sign-on, profile management, and role-based access control.',
+              status: 'Planned',
               icon: <KeyRound className="w-4 h-4 text-amber-500" />,
+              badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
             },
             {
-              title: 'Prompt History',
-              desc: 'Persistent cloud history with automated versioning, diff comparisons, and export to CSV/JSON.',
-              icon: <HistoryIcon className="w-4 h-4 text-rose-500" />,
+              phase: 'Phase 5',
+              title: 'Production Deployment',
+              desc: 'Edge deployment on Vercel/Cloudflare, rate limiting, security auditing, and automated analytics.',
+              status: 'Planned',
+              icon: <Rocket className="w-4 h-4 text-purple-500" />,
+              badgeClass: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300',
             },
-            {
-              title: 'Advanced Prompt Engineering',
-              desc: 'Few-shot example injection, chain-of-thought orchestration, and custom system instruction builders.',
-              icon: <Wand2 className="w-4 h-4 text-indigo-500" />,
-            },
-          ].map((item, idx) => (
+          ].map((item) => (
             <div
-              key={idx}
-              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-start gap-3"
+              key={item.phase}
+              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex flex-col justify-between space-y-3"
             >
-              <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shrink-0">
-                {item.icon}
-              </div>
               <div>
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shrink-0">
+                    {item.icon}
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${item.badgeClass}`}>
+                    {item.status}
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  {item.phase}
+                </div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">
                   {item.title}
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                   {item.desc}
                 </p>
               </div>

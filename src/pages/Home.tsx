@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
         <div className="text-center max-w-4xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/80 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Next-Generation Prompt Optimization</span>
+            <span>AI-Powered Prompt Engineering</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.15]">

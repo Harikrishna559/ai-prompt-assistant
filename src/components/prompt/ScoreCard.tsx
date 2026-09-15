@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ScoreBreakdown } from '../../types';
 import { Award } from 'lucide-react';
-import { getScoreColor } from '../../utils/formatters';
+import { getScoreColor, getScoreTier } from '../../utils/formatters';
 
 interface ScoreCardProps {
   score: ScoreBreakdown;
@@ -9,30 +9,54 @@ interface ScoreCardProps {
 
 export const ScoreCard: React.FC<ScoreCardProps> = ({ score }) => {
   const scoreTheme = getScoreColor(score.overall);
+  const tier = getScoreTier(score.overall);
 
   const metrics = [
-    { label: 'Clarity', value: score.clarity, description: 'Directness & phrasing' },
-    { label: 'Context', value: score.context, description: 'Background & persona' },
-    { label: 'Specificity', value: score.specificity, description: 'Precision & detail' },
-    { label: 'Completeness', value: score.completeness, description: 'Constraints & format' },
+    {
+      label: 'Clarity',
+      value: score.clarity,
+      explanation: 'Clear and direct objective',
+    },
+    {
+      label: 'Context',
+      value: score.context,
+      explanation: 'Background and role framing',
+    },
+    {
+      label: 'Specificity',
+      value: score.specificity,
+      explanation: 'Concrete details and constraints',
+    },
+    {
+      label: 'Completeness',
+      value: score.completeness,
+      explanation: 'Output format and boundary conditions',
+    },
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-      <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm transition-all">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Award className="w-5 h-5 text-indigo-500" />
-            Prompt Quality Score
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Objective evaluation based on standard prompt engineering principles
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Award className="w-5 h-5 text-indigo-500" />
+              Prompt Quality Score
+            </h3>
+            <span
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${scoreTheme.badgeBg}`}
+            >
+              {tier.label} Prompt
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {tier.description}
           </p>
         </div>
 
         {/* Overall Score Badge */}
-        <div className="flex items-baseline gap-1 bg-slate-50 dark:bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-          <span className={`text-3xl font-extrabold tracking-tight ${scoreTheme.text}`}>
+        <div className="flex items-baseline gap-1.5 bg-slate-50 dark:bg-slate-800/80 px-5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shrink-0">
+          <span className={`text-3xl sm:text-4xl font-black tracking-tight ${scoreTheme.text}`}>
             {score.overall}
           </span>
           <span className="text-sm font-semibold text-slate-400 dark:text-slate-500">
@@ -48,18 +72,18 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({ score }) => {
           return (
             <div
               key={metric.label}
-              className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800"
+              className="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
             >
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-start justify-between gap-2 mb-2">
                 <div>
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {metric.label}
                   </span>
-                  <span className="block text-[11px] text-slate-400 dark:text-slate-500">
-                    {metric.description}
+                  <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    "{metric.explanation}"
                   </span>
                 </div>
-                <span className={`text-sm font-bold ${itemColor.text}`}>
+                <span className={`text-sm font-bold font-mono ${itemColor.text}`}>
                   {metric.value}%
                 </span>
               </div>

@@ -258,12 +258,12 @@ export const History: React.FC = () => {
         <Modal
           isOpen={!!deleteConfirmationId}
           onClose={() => setDeleteConfirmationId(null)}
-          title="Confirm Deletion"
+          title="Delete this prompt?"
           maxWidth="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Are you sure you want to remove this prompt from your local history? This action cannot be undone.
+              This action will remove the prompt from your current local history.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button
@@ -278,7 +278,7 @@ export const History: React.FC = () => {
                 size="sm"
                 onClick={() => handleDelete(deleteConfirmationId)}
               >
-                Delete Record
+                Delete
               </Button>
             </div>
           </div>

@@ -9,6 +9,8 @@ import {
   Eye,
   Copy,
   Check,
+  CheckCircle2,
+  Lightbulb,
 } from 'lucide-react';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { MOCK_RECENT_PROMPTS } from '../data/mockPrompts';
@@ -143,9 +145,10 @@ export const Dashboard: React.FC = () => {
                     </td>
                     <td className="py-4 px-6">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreStyle.badgeBg}`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreStyle.badgeBg}`}
                       >
-                        {item.score} / 100
+                        <span>{item.score}</span>
+                        <span className="opacity-80 font-semibold">{scoreStyle.tier}</span>
                       </span>
                     </td>
                     <td className="py-4 px-6 text-slate-500 dark:text-slate-400 text-xs">
@@ -182,9 +185,10 @@ export const Dashboard: React.FC = () => {
                     {item.taskType}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreStyle.badgeBg}`}
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${scoreStyle.badgeBg}`}
                   >
-                    Score: {item.score}
+                    <span>{item.score}</span>
+                    <span className="opacity-80 font-semibold">{scoreStyle.tier}</span>
                   </span>
                 </div>
 
@@ -218,13 +222,23 @@ export const Dashboard: React.FC = () => {
           maxWidth="xl"
         >
           <div className="space-y-6">
-            {/* Meta tags */}
-            <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-800">
-              <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                Category: {selectedPrompt.taskType}
-              </span>
+            {/* Meta header */}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                  {selectedPrompt.taskType}
+                </span>
+                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span
+                  className={`font-bold px-2 py-0.5 rounded-full ${
+                    getScoreColor(selectedPrompt.score).badgeBg
+                  }`}
+                >
+                  Score: {selectedPrompt.score} ({getScoreColor(selectedPrompt.score).tier})
+                </span>
+              </div>
               <span className="text-slate-400">
-                Created: {formatDate(selectedPrompt.createdAt)}
+                Date: {formatDate(selectedPrompt.createdAt)}
               </span>
             </div>
 
@@ -233,7 +247,7 @@ export const Dashboard: React.FC = () => {
               <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
                 Original Prompt
               </span>
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300 font-mono">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 font-mono">
                 "{selectedPrompt.originalPrompt}"
               </div>
             </div>
@@ -243,7 +257,7 @@ export const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5" />
-                  Improved Version
+                  Improved Prompt
                 </span>
                 <button
                   onClick={() => handleCopy(selectedPrompt.improvedPrompt)}
@@ -253,40 +267,55 @@ export const Dashboard: React.FC = () => {
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-900/60 text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+              <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-900/60 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
                 {selectedPrompt.improvedPrompt}
               </div>
             </div>
 
-            {/* Subscores if available */}
-            {selectedPrompt.detailedScore && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-center text-xs">
-                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                  <span className="text-slate-400 block">Clarity</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {selectedPrompt.detailedScore.clarity}%
-                  </span>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                  <span className="text-slate-400 block">Context</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {selectedPrompt.detailedScore.context}%
-                  </span>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                  <span className="text-slate-400 block">Specificity</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {selectedPrompt.detailedScore.specificity}%
-                  </span>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                  <span className="text-slate-400 block">Completeness</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
-                    {selectedPrompt.detailedScore.completeness}%
-                  </span>
-                </div>
+            {/* Why It Was Improved */}
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                Why It Was Improved
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(selectedPrompt.whyBetter || [
+                  'Clear objective',
+                  'Better context',
+                  'Defined output',
+                  'Added constraints',
+                ]).map((reason, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 text-xs font-medium text-emerald-900 dark:text-emerald-300"
+                  >
+                    <span>✓</span>
+                    <span>{reason}</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* Suggestions */}
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <Lightbulb className="w-3.5 h-3.5 text-indigo-500" />
+                Suggestions
+              </span>
+              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                {(selectedPrompt.suggestions || [
+                  'Specify your target audience',
+                  'Mention desired response length',
+                  'Define expected output format',
+                  'Add important constraints',
+                ]).map((sug, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                    <span>{sug}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {/* Modal actions */}
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

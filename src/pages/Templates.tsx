@@ -112,7 +112,7 @@ export const Templates: React.FC = () => {
       ) : (
         <EmptyState
           title="No templates found"
-          description={`We couldn't find any templates matching "${searchQuery}" in ${selectedCategory}.`}
+          description="Try another search or category."
           actionText="Reset Filters"
           onAction={() => {
             setSearchQuery('');

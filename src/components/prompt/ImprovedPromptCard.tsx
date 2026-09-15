@@ -29,7 +29,7 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
     const success = await copyToClipboard(improvedPrompt);
     if (success) {
       setCopied(true);
-      showToast('Prompt copied to clipboard!');
+      showToast('Prompt copied!');
       setTimeout(() => setCopied(false), 2500);
     } else {
       showToast('Failed to copy. Please select and copy manually.');
@@ -42,7 +42,7 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
     if (onSave) {
       onSave(newSaved);
     }
-    showToast(newSaved ? 'Saved to your prompt library!' : 'Removed from saved prompts.');
+    showToast(newSaved ? 'Prompt saved!' : 'Prompt removed from saved.');
   };
 
   return (

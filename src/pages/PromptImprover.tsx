@@ -150,6 +150,24 @@ export const PromptImprover: React.FC = () => {
       {/* Loading Skeleton during Mock Processing */}
       {isLoading && <LoadingState />}
 
+      {/* Intentional Empty State before first improvement */}
+      {!isLoading && !analysis && (
+        <div className="bg-white/80 dark:bg-slate-900/80 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-8 sm:p-12 text-center animate-fade-in shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+            Ready to improve your prompt?
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+            Enter a rough idea above and we'll show you how it can be structured more effectively.
+          </p>
+          <div className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 px-3.5 py-1.5 rounded-full border border-indigo-200/50 dark:border-indigo-800/50">
+            <span>Tip: Try selecting a task category or picking a quick idea</span>
+          </div>
+        </div>
+      )}
+
       {/* Analysis Results Display */}
       {!isLoading && analysis && (
         <div className="space-y-8 animate-fade-in pt-4">

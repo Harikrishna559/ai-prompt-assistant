@@ -1,53 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, CheckCircle2, Circle } from 'lucide-react';
 
 interface LoadingStateProps {
   message?: string;
   subMessage?: string;
 }
 
-const STEPS = [
-  'Parsing prompt semantics...',
-  'Evaluating clarity, specificity, and constraints...',
-  'Identifying ambiguities and missing context...',
-  'Applying expert prompt engineering frameworks...',
-  'Finalizing optimized prompt and actionable advice...',
+const STAGES = [
+  'Analyzing prompt...',
+  'Evaluating prompt quality...',
+  'Checking clarity & specificity...',
+  'Improving instructions...',
+  'Preparing improvements...',
 ];
 
 export const LoadingState: React.FC<LoadingStateProps> = ({
-  message = 'Analyzing and Optimizing Prompt',
-  subMessage,
+  message = 'Evaluating prompt quality...',
 }) => {
-  const [stepIndex, setStepIndex] = useState(0);
+  const [activeStage, setActiveStage] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStepIndex((prev) => (prev + 1) % STEPS.length);
-    }, 900);
+      setActiveStage((prev) => (prev < STAGES.length - 1 ? prev + 1 : prev));
+    }, 280);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm">
+    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm animate-fade-in">
+      {/* Visual pulse icon */}
       <div className="relative mb-6">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-0.5 animate-pulse">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-0.5 shadow-md shadow-indigo-500/20">
           <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-            <Sparkles className="w-8 h-8 animate-spin text-brand-500" style={{ animationDuration: '4s' }} />
+            <Sparkles className="w-8 h-8 animate-spin text-indigo-500" style={{ animationDuration: '6s' }} />
           </div>
         </div>
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 animate-ping" />
       </div>
 
-      <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+      <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
         {message}
       </h3>
-      <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 h-6 transition-all duration-300">
-        {subMessage || STEPS[stepIndex]}
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-sm">
+        Applying prompt engineering frameworks to generate structured recommendations.
       </p>
+
+      {/* Structured stages list */}
+      <div className="w-full max-w-xs space-y-2 text-left">
+        {STAGES.map((stage, idx) => {
+          const isDone = idx < activeStage;
+          const isCurrent = idx === activeStage;
+          return (
+            <div
+              key={stage}
+              className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs transition-all duration-200 ${
+                isCurrent
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold'
+                  : isDone
+                  ? 'text-emerald-600 dark:text-emerald-400 font-medium'
+                  : 'text-slate-400 dark:text-slate-600 opacity-60'
+              }`}
+            >
+              {isDone ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              ) : isCurrent ? (
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-ping" />
+                </div>
+              ) : (
+                <Circle className="w-4 h-4 text-slate-300 dark:text-slate-700 shrink-0" />
+              )}
+              <span>{stage}</span>
+            </div>
+          );
+        })}
+      </div>
 
       {/* Progress bar visual */}
       <div className="w-64 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-6">
-        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full animate-pulse w-3/4 transition-all duration-500" />
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+          style={{ width: `${((activeStage + 1) / STAGES.length) * 100}%` }}
+        />
       </div>
     </div>
   );
