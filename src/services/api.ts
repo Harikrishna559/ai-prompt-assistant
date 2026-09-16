@@ -15,27 +15,45 @@ const simulateDelay = (ms: number = 450): Promise<void> =>
 /**
  * Analyze an input prompt and generate improvement suggestions
  *
- * // TODO PHASE 10:
- * // Replace mock implementation with Gemini API.
- * // Example:
- * // const response = await geminiClient.models.generateContent({
- * //   model: 'gemini-2.0-flash',
- * //   contents: buildPromptAnalysisPrompt(prompt, taskType)
- * // });
+ * // Phase 3 Step 1: Secure server-side endpoint integration
+ * Calls POST /api/improve without exposing secrets to client code.
  */
 export async function analyzePrompt(
   prompt: string,
   taskType: TaskType = 'General',
   variation: number = 0
 ): Promise<PromptAnalysis> {
-  await simulateDelay(450);
-
   if (!prompt || prompt.trim().length === 0) {
     throw new Error('Prompt cannot be empty');
   }
 
-  const analysis = generateMockAnalysis(prompt, taskType, variation);
-  return analysis;
+  // Call the secure server-side endpoint POST /api/improve
+  try {
+    const response = await fetch('/api/improve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        taskType,
+        variation,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data as PromptAnalysis;
+    }
+
+    console.warn(`[API] /api/improve responded with HTTP ${response.status}, using local fallback.`);
+  } catch (error) {
+    console.warn('[API] /api/improve is unreachable, using local fallback:', error);
+  }
+
+  // Fallback to local mock analysis for offline resilience
+  await simulateDelay(450);
+  return generateMockAnalysis(prompt, taskType, variation);
 }
 
 /**
