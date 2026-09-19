@@ -1,27 +1,76 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Mail, Lock, Info, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import { signIn } from '../services/auth';
 
 export const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, loading } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // If already authenticated, redirect to destination or dashboard
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate, location]);
+
+  const clearErrors = () => {
+    if (validationError) setValidationError(null);
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+
     if (!email.trim()) {
       setValidationError('Please enter your email.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setValidationError('Please enter a valid email address.');
       return;
     }
     if (!password.trim()) {
       setValidationError('Please enter your password.');
       return;
     }
+
     setValidationError(null);
-    setNotice('Authentication will be available in a future release.');
+    setErrorMessage(null);
+    setNotice(null);
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await signIn(email.trim(), password);
+
+      if (error) {
+        setErrorMessage(error);
+        return;
+      }
+
+      if (data?.session || data?.user) {
+        const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
+      }
+    } catch {
+      setErrorMessage('An unexpected error occurred during login. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleClick = () => {
@@ -44,20 +93,20 @@ export const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Validation Alert */}
-        {validationError && (
+        {/* Validation / Auth Error Alert */}
+        {(validationError || errorMessage) && (
           <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{validationError}</span>
+            <span>{validationError || errorMessage}</span>
           </div>
         )}
 
-        {/* Frontend-only Notice Toast/Alert */}
+        {/* Notice Toast/Alert */}
         {notice && (
           <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 flex items-start gap-2.5 text-xs text-blue-900 dark:text-blue-200 animate-fade-in">
             <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Future Authentication Notice</p>
+              <p className="font-semibold">Notice</p>
               <p>{notice}</p>
             </div>
           </div>
@@ -82,10 +131,11 @@ export const Login: React.FC = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="name@company.com"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -102,7 +152,8 @@ export const Login: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setNotice('Password reset flow will be available in a future release.')}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                  disabled={isLoading}
+                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50"
                 >
                   Forgot Password?
                 </button>
@@ -115,16 +166,18 @@ export const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 disabled:opacity-50"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -132,7 +185,14 @@ export const Login: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" variant="primary" size="md" className="w-full justify-center shadow-xs">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="w-full justify-center shadow-xs"
+            >
               Login
             </Button>
           </form>
@@ -151,6 +211,7 @@ export const Login: React.FC = () => {
             variant="outline"
             size="md"
             onClick={handleGoogleClick}
+            disabled={isLoading}
             className="w-full justify-center"
             leftIcon={
               <svg className="w-4 h-4" viewBox="0 0 24 24">

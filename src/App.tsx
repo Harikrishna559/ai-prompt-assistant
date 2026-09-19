@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home';
 import { PromptImprover } from './pages/PromptImprover';
 import { Templates } from './pages/Templates';
@@ -32,8 +33,22 @@ export const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/improve" element={<PromptImprover />} />
           <Route path="/templates" element={<Templates />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/history" element={<History />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

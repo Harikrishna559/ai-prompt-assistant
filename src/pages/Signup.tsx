@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, User, Mail, Lock, Info, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Sparkles, User, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { signUp } from '../services/auth';
+import { createProfile } from '../services/database';
 
 export const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,10 +14,20 @@ export const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const clearErrors = () => {
+    if (validationError) setValidationError(null);
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+
+    // Client-side validation
     if (!fullName.trim()) {
       setValidationError('Please enter your full name.');
       return;
@@ -23,16 +36,54 @@ export const Signup: React.FC = () => {
       setValidationError('Please enter your email.');
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setValidationError('Please enter a valid email address.');
+      return;
+    }
     if (!password.trim()) {
       setValidationError('Please enter your password.');
+      return;
+    }
+    if (password.length < 6) {
+      setValidationError('Password must be at least 6 characters long.');
       return;
     }
     if (password !== confirmPassword) {
       setValidationError('Passwords do not match.');
       return;
     }
+
     setValidationError(null);
-    setNotice('User account creation and persistence will be available in a future release.');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await signUp(email.trim(), password, fullName.trim());
+
+      if (error) {
+        setErrorMessage(error);
+        return;
+      }
+
+      if (data?.session) {
+        // User is immediately authenticated; attempt profile creation
+        await createProfile(fullName.trim()).catch(() => {});
+        navigate('/dashboard');
+      } else {
+        // Confirmation email required by Supabase
+        setSuccessMessage(
+          'Account created successfully! Please check your email inbox to verify your account before signing in.'
+        );
+        setPassword('');
+        setConfirmPassword('');
+      }
+    } catch {
+      setErrorMessage('An unexpected error occurred during signup. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,21 +102,21 @@ export const Signup: React.FC = () => {
           </p>
         </div>
 
-        {/* Validation Alert */}
-        {validationError && (
+        {/* Validation / Auth Error Alert */}
+        {(validationError || errorMessage) && (
           <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{validationError}</span>
+            <span>{validationError || errorMessage}</span>
           </div>
         )}
 
-        {/* Notice alert */}
-        {notice && (
-          <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 flex items-start gap-2.5 text-xs text-blue-900 dark:text-blue-200 animate-fade-in">
-            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+        {/* Success / Verification Alert */}
+        {successMessage && (
+          <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 flex items-start gap-2.5 text-xs text-emerald-900 dark:text-emerald-200 animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Future Authentication Notice</p>
-              <p>{notice}</p>
+              <p className="font-semibold">Check your email</p>
+              <p>{successMessage}</p>
             </div>
           </div>
         )}
@@ -89,10 +140,11 @@ export const Signup: React.FC = () => {
                   value={fullName}
                   onChange={(e) => {
                     setFullName(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="Jane Doe"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -113,10 +165,11 @@ export const Signup: React.FC = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="jane@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -137,16 +190,18 @@ export const Signup: React.FC = () => {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 disabled:opacity-50"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -169,16 +224,18 @@ export const Signup: React.FC = () => {
                   value={confirmPassword}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
-                    if (validationError) setValidationError(null);
+                    clearErrors();
                   }}
+                  disabled={isLoading}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 disabled:opacity-50"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -186,7 +243,14 @@ export const Signup: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" variant="primary" size="md" className="w-full justify-center shadow-xs">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="w-full justify-center shadow-xs"
+            >
               Create Account
             </Button>
           </form>

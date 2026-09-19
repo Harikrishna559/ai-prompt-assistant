@@ -67,4 +67,12 @@ export interface DashboardStats {
   templatesUsed: number;
 }
 
+export interface UserProfile {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type Theme = 'light' | 'dark';

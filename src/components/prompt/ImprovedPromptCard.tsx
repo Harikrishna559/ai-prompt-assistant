@@ -7,7 +7,9 @@ interface ImprovedPromptCardProps {
   improvedPrompt: string;
   onRegenerate: () => void;
   isRegenerating?: boolean;
-  onSave?: (saved: boolean) => void;
+  onSave?: () => Promise<boolean> | boolean | void;
+  isSaving?: boolean;
+  isSaved?: boolean;
 }
 
 export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
@@ -15,9 +17,10 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
   onRegenerate,
   isRegenerating = false,
   onSave,
+  isSaving = false,
+  isSaved = false,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -36,13 +39,14 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
     }
   };
 
-  const handleSave = () => {
-    const newSaved = !saved;
-    setSaved(newSaved);
+  const handleSaveClick = async () => {
+    if (isSaving) return;
     if (onSave) {
-      onSave(newSaved);
+      const result = await onSave();
+      if (result === true) {
+        showToast('Prompt saved!');
+      }
     }
-    showToast(newSaved ? 'Prompt saved!' : 'Prompt removed from saved.');
   };
 
   return (
@@ -93,18 +97,20 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
 
           <Button
             type="button"
-            variant={saved ? 'secondary' : 'outline'}
+            variant={isSaved ? 'secondary' : 'outline'}
             size="sm"
-            onClick={handleSave}
+            onClick={handleSaveClick}
+            isLoading={isSaving}
+            disabled={isSaving}
             leftIcon={
-              saved ? (
+              isSaved ? (
                 <BookmarkCheck className="w-4 h-4 text-indigo-500" />
               ) : (
                 <Bookmark className="w-4 h-4" />
               )
             }
           >
-            {saved ? 'Saved' : 'Save'}
+            {isSaved ? 'Saved' : 'Save'}
           </Button>
         </div>
       </div>

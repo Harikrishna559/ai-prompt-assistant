@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Sparkles, AlertCircle, Layers } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
+import { Sparkles, AlertCircle, Layers, CheckCircle2, Info } from 'lucide-react';
 import type { PromptAnalysis, TaskType } from '../types';
 import { analyzePrompt } from '../services/api';
+import { savePromptHistory } from '../services/database';
+import { useAuth } from '../context/AuthContext';
 import { PromptInput } from '../components/prompt/PromptInput';
 import { ScoreCard } from '../components/prompt/ScoreCard';
 import { AnalysisCard } from '../components/prompt/AnalysisCard';
@@ -11,6 +13,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 
 export const PromptImprover: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   // Initial state check from location navigation (e.g. coming from Templates)
   const initialPrompt = location.state?.templatePrompt || '';
@@ -23,6 +26,14 @@ export const PromptImprover: React.FC = () => {
   const [analysis, setAnalysis] = useState<PromptAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [variation, setVariation] = useState<number>(0);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [saveMessage, setSaveMessage] = useState<{
+    type: 'error' | 'info' | 'success';
+    text: string;
+  } | null>(null);
+
   // If redirected with template state, update input
   useEffect(() => {
     if (location.state?.templatePrompt) {
@@ -33,8 +44,6 @@ export const PromptImprover: React.FC = () => {
     }
   }, [location.state]);
 
-  const [variation, setVariation] = useState<number>(0);
-
   const handleImprove = async () => {
     if (!prompt.trim()) {
       setError('Please enter a prompt to analyze and improve.');
@@ -42,6 +51,8 @@ export const PromptImprover: React.FC = () => {
     }
 
     setError(null);
+    setSaveMessage(null);
+    setIsSaved(false);
     setIsLoading(true);
 
     try {
@@ -58,6 +69,9 @@ export const PromptImprover: React.FC = () => {
   const handleRegenerate = async () => {
     if (!prompt.trim()) return;
     setIsRegenerating(true);
+    setSaveMessage(null);
+    setIsSaved(false);
+
     try {
       const nextVar = variation + 1;
       setVariation(nextVar);
@@ -70,23 +84,46 @@ export const PromptImprover: React.FC = () => {
     }
   };
 
-  const handleSave = (isSaved: boolean) => {
-    if (!analysis) return;
+  const handleSave = async (): Promise<boolean> => {
+    if (!analysis) return false;
+    if (isSaving) return false;
+
+    if (!isAuthenticated) {
+      setSaveMessage({
+        type: 'info',
+        text: 'Please sign in to save prompts to your history.',
+      });
+      return false;
+    }
+
+    setIsSaving(true);
+    setSaveMessage(null);
+
     try {
-      const existing = JSON.parse(localStorage.getItem('saved_prompts') || '[]');
-      if (isSaved) {
-        const newEntry = {
-          id: analysis.id,
-          originalPrompt: analysis.originalPrompt,
-          improvedPrompt: analysis.improvedPrompt,
-          taskType: analysis.taskType,
-          score: analysis.score.overall,
-          createdAt: analysis.createdAt,
-        };
-        localStorage.setItem('saved_prompts', JSON.stringify([newEntry, ...existing]));
+      const { data, error: dbError } = await savePromptHistory(analysis);
+
+      if (dbError || !data) {
+        setSaveMessage({
+          type: 'error',
+          text: dbError || 'Failed to save prompt. Please try again.',
+        });
+        return false;
       }
-    } catch (e) {
-      console.warn('Could not save to localStorage', e);
+
+      setIsSaved(true);
+      setSaveMessage({
+        type: 'success',
+        text: 'Prompt saved to your history!',
+      });
+      return true;
+    } catch {
+      setSaveMessage({
+        type: 'error',
+        text: 'An unexpected error occurred while saving. Please try again.',
+      });
+      return false;
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -94,6 +131,8 @@ export const PromptImprover: React.FC = () => {
     setPrompt('');
     setAnalysis(null);
     setError(null);
+    setIsSaved(false);
+    setSaveMessage(null);
   };
 
   return (
@@ -127,9 +166,42 @@ export const PromptImprover: React.FC = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400">
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* Save Status / Auth Notice */}
+      {saveMessage && (
+        <div
+          className={`p-4 rounded-xl flex items-center justify-between gap-3 text-sm animate-fade-in ${
+            saveMessage.type === 'error'
+              ? 'bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-400'
+              : saveMessage.type === 'success'
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-400'
+              : 'bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 text-blue-700 dark:text-blue-400'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            {saveMessage.type === 'error' ? (
+              <AlertCircle className="w-5 h-5 shrink-0" />
+            ) : saveMessage.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+            ) : (
+              <Info className="w-5 h-5 shrink-0" />
+            )}
+            <span>{saveMessage.text}</span>
+          </div>
+          {saveMessage.type === 'info' && (
+            <Link
+              to="/login"
+              state={{ from: location }}
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline shrink-0"
+            >
+              Sign In →
+            </Link>
+          )}
         </div>
       )}
 
@@ -147,7 +219,7 @@ export const PromptImprover: React.FC = () => {
         isLoading={isLoading}
       />
 
-      {/* Loading Skeleton during Mock Processing */}
+      {/* Loading Skeleton during Processing */}
       {isLoading && <LoadingState />}
 
       {/* Intentional Empty State before first improvement */}
@@ -177,6 +249,8 @@ export const PromptImprover: React.FC = () => {
             onRegenerate={handleRegenerate}
             isRegenerating={isRegenerating}
             onSave={handleSave}
+            isSaving={isSaving}
+            isSaved={isSaved}
           />
 
           {/* Quality Score Progress Bars */}

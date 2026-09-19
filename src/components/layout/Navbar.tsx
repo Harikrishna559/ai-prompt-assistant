@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Menu, X, Sun, Moon, ArrowRight } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Sparkles, Menu, X, Sun, Moon, ArrowRight, LogOut, User as UserIcon } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
+import { signOut } from '../../services/auth';
 import { Button } from '../ui/Button';
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+
   const { theme, toggleTheme } = useTheme();
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -20,6 +27,26 @@ export const Navbar: React.FC = () => {
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
     return location.pathname.startsWith(path);
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    setLogoutError(null);
+
+    try {
+      const { error } = await signOut();
+      if (error) {
+        setLogoutError(error);
+        return;
+      }
+      setMobileMenuOpen(false);
+      navigate('/login');
+    } catch {
+      setLogoutError('Unable to log out. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -74,21 +101,42 @@ export const Navbar: React.FC = () => {
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Login
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-xs font-medium text-slate-700 dark:text-slate-300 max-w-[160px] truncate">
+                <UserIcon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span className="truncate">{user?.user_metadata?.full_name || user?.email}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                isLoading={isLoggingOut}
+                disabled={isLoggingOut}
+                leftIcon={<LogOut className="w-3.5 h-3.5" />}
+              >
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Login
+                </Button>
+              </Link>
 
-          <Link to="/signup">
-            <Button
-              variant="primary"
-              size="sm"
-              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-            >
-              Get Started
-            </Button>
-          </Link>
+              <Link to="/signup">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                >
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
@@ -133,24 +181,49 @@ export const Navbar: React.FC = () => {
           })}
 
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-            <Link
-              to="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full"
-            >
-              <Button variant="outline" size="md" className="w-full justify-center">
-                Login
-              </Button>
-            </Link>
-            <Link
-              to="/signup"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full"
-            >
-              <Button variant="primary" size="md" className="w-full justify-center">
-                Get Started
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <div className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                  <UserIcon className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <span className="truncate">{user?.user_metadata?.full_name || user?.email}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={handleLogout}
+                  isLoading={isLoggingOut}
+                  disabled={isLoggingOut}
+                  leftIcon={<LogOut className="w-4 h-4" />}
+                  className="w-full justify-center"
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full"
+                >
+                  <Button variant="outline" size="md" className="w-full justify-center">
+                    Login
+                  </Button>
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full"
+                >
+                  <Button variant="primary" size="md" className="w-full justify-center">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
+            {logoutError && (
+              <p className="text-xs text-rose-600 dark:text-rose-400 text-center">{logoutError}</p>
+            )}
           </div>
         </div>
       )}
