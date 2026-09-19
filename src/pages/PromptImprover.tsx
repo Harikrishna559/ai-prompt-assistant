@@ -48,8 +48,8 @@ export const PromptImprover: React.FC = () => {
       setVariation(0);
       const result = await analyzePrompt(prompt, taskType, 0);
       setAnalysis(result);
-    } catch {
-      setError('Failed to analyze prompt. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to analyze prompt. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +64,7 @@ export const PromptImprover: React.FC = () => {
       const result = await analyzePrompt(prompt, taskType, nextVar);
       setAnalysis(result);
     } catch (err) {
-      console.error(err);
+      setError(err instanceof Error ? err.message : 'Failed to regenerate prompt. Please try again.');
     } finally {
       setIsRegenerating(false);
     }
