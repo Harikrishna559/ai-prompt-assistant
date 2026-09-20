@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FileText,
@@ -13,6 +13,7 @@ import {
   Lightbulb,
   AlertCircle,
   Loader2,
+  RefreshCw,
   History as HistoryIcon,
 } from 'lucide-react';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -27,7 +28,7 @@ import { getDashboardStats } from '../services/database';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   const [stats, setStats] = useState<DashboardStats>({
     totalPrompts: 0,
@@ -41,46 +42,35 @@ export const Dashboard: React.FC = () => {
   const [selectedPrompt, setSelectedPrompt] = useState<PromptHistoryItem | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const fetchDashboard = useCallback(async () => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: fetchError } = await getDashboardStats(user?.id);
+
+      if (fetchError) {
+        setError(fetchError);
+      } else if (data) {
+        setStats(data.stats);
+        setRecentPrompts(data.recentPrompts);
+      }
+    } catch {
+      setError('Unable to load dashboard data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, authLoading, user?.id]);
+
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchDashboard = async () => {
-      if (authLoading) return;
-      if (!isAuthenticated) {
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const { data, error: fetchError } = await getDashboardStats();
-        if (!isMounted) return;
-
-        if (fetchError) {
-          setError(fetchError);
-        } else if (data) {
-          setStats(data.stats);
-          setRecentPrompts(data.recentPrompts);
-        }
-      } catch {
-        if (isMounted) {
-          setError('Unable to load dashboard data. Please try again.');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
     fetchDashboard();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated, authLoading]);
+  }, [fetchDashboard]);
 
   const handleCopy = async (text: string) => {
     const ok = await copyToClipboard(text);
@@ -124,11 +114,24 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Error Banner */}
+      {/* Error Banner with Retry */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{error}</span>
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchDashboard}
+            isLoading={isLoading}
+            disabled={isLoading}
+            className="self-end sm:self-auto border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40"
+            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+          >
+            Retry
+          </Button>
         </div>
       )}
 

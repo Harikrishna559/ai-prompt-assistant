@@ -110,6 +110,13 @@ export async function savePromptHistory(
       .single();
 
     if (error) {
+      console.error('[Save Prompt History Error]:', {
+        table: 'prompt_history',
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return {
         data: null,
         error: 'Failed to save prompt to history. Please try again.',
@@ -120,7 +127,11 @@ export async function savePromptHistory(
       data: mapRowToHistoryItem(data as PromptHistoryRow),
       error: null,
     };
-  } catch {
+  } catch (err) {
+    console.error(
+      '[Save Prompt History Unexpected Error]:',
+      err instanceof Error ? err.message : 'Unknown error'
+    );
     return {
       data: null,
       error: 'An unexpected error occurred while saving to history.',
@@ -131,27 +142,40 @@ export async function savePromptHistory(
 /**
  * Fetch the authenticated user's prompt history ordered by created_at DESC
  */
-export async function getPromptHistory(): Promise<DatabaseResponse<PromptHistoryItem[]>> {
+export async function getPromptHistory(
+  userId?: string
+): Promise<DatabaseResponse<PromptHistoryItem[]>> {
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      return {
-        data: null,
-        error: 'You must be signed in to view your prompt history.',
-      };
+      if (userError || !user) {
+        return {
+          data: null,
+          error: 'You must be signed in to view your prompt history.',
+        };
+      }
+      targetUserId = user.id;
     }
 
     const { data, error } = await supabase
       .from('prompt_history')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', targetUserId)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('[Prompt History Error]:', {
+        table: 'prompt_history',
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return {
         data: null,
         error: 'Failed to load prompt history. Please try again.',
@@ -166,7 +190,8 @@ export async function getPromptHistory(): Promise<DatabaseResponse<PromptHistory
       data: mappedItems,
       error: null,
     };
-  } catch {
+  } catch (err) {
+    console.error('[Prompt History Unexpected Error]:', err);
     return {
       data: null,
       error: 'An unexpected error occurred while loading prompt history.',
@@ -200,6 +225,13 @@ export async function deletePromptHistory(
       .eq('user_id', user.id);
 
     if (error) {
+      console.error('[Delete Prompt History Error]:', {
+        table: 'prompt_history',
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return {
         success: false,
         error: 'Failed to delete prompt history item. Please try again.',
@@ -210,7 +242,11 @@ export async function deletePromptHistory(
       success: true,
       error: null,
     };
-  } catch {
+  } catch (err) {
+    console.error(
+      '[Delete Prompt History Unexpected Error]:',
+      err instanceof Error ? err.message : 'Unknown error'
+    );
     return {
       success: false,
       error: 'An unexpected error occurred while deleting prompt history item.',
@@ -226,27 +262,40 @@ export interface DashboardData {
 /**
  * Provide calculated statistics and recent prompts for the Dashboard
  */
-export async function getDashboardStats(): Promise<DatabaseResponse<DashboardData>> {
+export async function getDashboardStats(
+  userId?: string
+): Promise<DatabaseResponse<DashboardData>> {
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-    if (userError || !user) {
-      return {
-        data: null,
-        error: 'You must be signed in to view dashboard statistics.',
-      };
+      if (userError || !user) {
+        return {
+          data: null,
+          error: 'You must be signed in to view dashboard statistics.',
+        };
+      }
+      targetUserId = user.id;
     }
 
     const { data, error } = await supabase
       .from('prompt_history')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', targetUserId)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('[Dashboard Stats Error]:', {
+        table: 'prompt_history',
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return {
         data: null,
         error: 'Failed to load dashboard statistics. Please try again.',
@@ -293,7 +342,8 @@ export async function getDashboardStats(): Promise<DatabaseResponse<DashboardDat
       },
       error: null,
     };
-  } catch {
+  } catch (err) {
+    console.error('[Dashboard Stats Unexpected Error]:', err);
     return {
       data: null,
       error: 'An unexpected error occurred while loading dashboard statistics.',

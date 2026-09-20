@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, KeyRound, ArrowRight } from 'lucide-react';
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, KeyRound, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { updateUserPassword } from '../services/auth';
+import { supabase } from '../lib/supabase';
 
 export const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -13,6 +14,94 @@ export const ResetPassword: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Recovery session validation state
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [isSessionValid, setIsSessionValid] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkRecoverySession = async () => {
+      // 1. Check for error parameters in URL hash or query
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const errorDesc =
+        hashParams.get('error_description') ||
+        queryParams.get('error_description') ||
+        hashParams.get('error') ||
+        queryParams.get('error');
+
+      if (errorDesc) {
+        if (isMounted) {
+          setIsSessionValid(false);
+          setSessionError(decodeURIComponent(errorDesc.replace(/\+/g, ' ')));
+          setIsCheckingSession(false);
+        }
+        return;
+      }
+
+      // 2. Check for active session in Supabase Auth
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error || !session) {
+          // Listen for PASSWORD_RECOVERY auth event if session is being established from hash tokens
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange((event, newSession) => {
+            if (!isMounted) return;
+            if (event === 'PASSWORD_RECOVERY' || (newSession && event === 'SIGNED_IN')) {
+              setIsSessionValid(true);
+              setSessionError(null);
+              setIsCheckingSession(false);
+            }
+          });
+
+          // Allow a brief timeout for token exchange to complete
+          const timer = setTimeout(() => {
+            if (isMounted && isCheckingSession) {
+              setIsSessionValid(false);
+              setSessionError(
+                'This password reset link is invalid or has expired. Please request a new reset link.'
+              );
+              setIsCheckingSession(false);
+            }
+          }, 1500);
+
+          return () => {
+            subscription.unsubscribe();
+            clearTimeout(timer);
+          };
+        } else {
+          if (isMounted) {
+            setIsSessionValid(true);
+            setSessionError(null);
+            setIsCheckingSession(false);
+          }
+        }
+      } catch {
+        if (isMounted) {
+          setIsSessionValid(false);
+          setSessionError(
+            'Unable to verify password reset link. Please try requesting a new link.'
+          );
+          setIsCheckingSession(false);
+        }
+      }
+    };
+
+    checkRecoverySession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isCheckingSession]);
 
   const clearErrors = () => {
     if (validationError) setValidationError(null);
@@ -63,6 +152,60 @@ export const ResetPassword: React.FC = () => {
     }
   };
 
+  // 1. Checking link state
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-8 shadow-sm text-center space-y-4 animate-fade-in">
+          <Loader2 className="w-10 h-10 animate-spin text-indigo-600 dark:text-indigo-400 mx-auto" />
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            Verifying reset link...
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Please wait while we validate your password recovery session.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Invalid or expired link state
+  if (!isSessionValid) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+        <div className="w-full max-w-md space-y-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-8 shadow-sm space-y-6 text-center animate-fade-in">
+            <div className="w-14 h-14 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 flex items-center justify-center mx-auto text-rose-600 dark:text-rose-400">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Reset Link Invalid or Expired
+              </h1>
+              <p className="text-sm text-rose-600 dark:text-rose-400 leading-relaxed">
+                {sessionError || 'The password reset link is invalid, expired, or has already been used.'}
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col gap-3">
+              <Link to="/login" className="block">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  className="w-full justify-center shadow-xs"
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}
+                >
+                  Return to Login
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Valid session: show password reset form
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
       <div className="w-full max-w-md space-y-8">
@@ -178,7 +321,7 @@ export const ResetPassword: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                     disabled={isLoading}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 disabled:opacity-50"
                   >

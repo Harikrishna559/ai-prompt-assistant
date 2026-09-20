@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -14,6 +14,7 @@ import {
   Lightbulb,
   AlertCircle,
   Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import { TASK_TYPES } from '../data/mockPrompts';
 import type { PromptHistoryItem } from '../types';
@@ -27,7 +28,7 @@ import { getPromptHistory, deletePromptHistory } from '../services/database';
 
 export const History: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   const [historyItems, setHistoryItems] = useState<PromptHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -41,46 +42,35 @@ export const History: React.FC = () => {
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Fetch real history on mount or when auth state changes
+  // Fetch real history on mount, on auth state changes, or on manual retry
+  const fetchHistory = useCallback(async () => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: fetchError } = await getPromptHistory(user?.id);
+
+      if (fetchError) {
+        setError(fetchError);
+      } else {
+        setHistoryItems(data || []);
+      }
+    } catch {
+      setError('Unable to load prompt history. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, authLoading, user?.id]);
+
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchHistory = async () => {
-      if (authLoading) return;
-      if (!isAuthenticated) {
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const { data, error: fetchError } = await getPromptHistory();
-        if (!isMounted) return;
-
-        if (fetchError) {
-          setError(fetchError);
-        } else {
-          setHistoryItems(data || []);
-        }
-      } catch {
-        if (isMounted) {
-          setError('Unable to load prompt history. Please try again.');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
     fetchHistory();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated, authLoading]);
+  }, [fetchHistory]);
 
   // Filter & Sort
   const filteredAndSortedItems = useMemo(() => {
@@ -178,11 +168,24 @@ export const History: React.FC = () => {
         </div>
       </div>
 
-      {/* Error Banner */}
+      {/* Error Banner with Retry */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{error}</span>
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchHistory}
+            isLoading={isLoading}
+            disabled={isLoading}
+            className="self-end sm:self-auto border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40"
+            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+          >
+            Retry
+          </Button>
         </div>
       )}
 
