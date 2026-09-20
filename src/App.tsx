@@ -11,6 +11,8 @@ import { History } from './pages/History';
 import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { ResetPassword } from './pages/ResetPassword';
+import { VerifyEmail } from './pages/VerifyEmail';
 
 // Component to scroll to top automatically on route changes
 const ScrollToTop: React.FC = () => {
@@ -31,8 +33,22 @@ export const App: React.FC = () => {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/improve" element={<PromptImprover />} />
-          <Route path="/templates" element={<Templates />} />
+          <Route
+            path="/improve"
+            element={
+              <ProtectedRoute>
+                <PromptImprover />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <ProtectedRoute>
+                <Templates />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
@@ -52,6 +68,8 @@ export const App: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           {/* Catch-all fallback */}
           <Route path="*" element={<Home />} />
         </Routes>

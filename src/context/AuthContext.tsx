@@ -6,7 +6,9 @@ export interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isLoading: boolean;
   isAuthenticated: boolean;
+  isEmailVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,11 +56,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  const isGoogleUser =
+    user?.app_metadata?.provider === 'google' ||
+    user?.identities?.some((id) => id.provider === 'google');
+  const isEmailVerified = Boolean(user?.email_confirmed_at) || Boolean(isGoogleUser);
+
   const value: AuthContextType = {
     user,
     session,
     loading,
+    isLoading: loading,
     isAuthenticated: !!user,
+    isEmailVerified,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

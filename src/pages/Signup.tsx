@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, User, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Sparkles, User, Mail, Lock, Eye, EyeOff, AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { signUp } from '../services/auth';
+import { signUp, resendVerificationEmail } from '../services/auth';
 import { createProfile } from '../services/database';
 
 export const Signup: React.FC = () => {
@@ -15,8 +15,13 @@ export const Signup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Email verification state
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
 
   const clearErrors = () => {
     if (validationError) setValidationError(null);
@@ -56,7 +61,6 @@ export const Signup: React.FC = () => {
 
     setValidationError(null);
     setErrorMessage(null);
-    setSuccessMessage(null);
     setIsLoading(true);
 
     try {
@@ -67,17 +71,14 @@ export const Signup: React.FC = () => {
         return;
       }
 
-      if (data?.session) {
-        // User is immediately authenticated; attempt profile creation
+      // Check if email is already verified (e.g. if email confirmation is turned off)
+      const isConfirmed = Boolean(data?.user?.email_confirmed_at);
+      if (isConfirmed && data?.session) {
         await createProfile(fullName.trim()).catch(() => {});
         navigate('/dashboard');
       } else {
-        // Confirmation email required by Supabase
-        setSuccessMessage(
-          'Account created successfully! Please check your email inbox to verify your account before signing in.'
-        );
-        setPassword('');
-        setConfirmPassword('');
+        // Show verification screen
+        setIsSubmitted(true);
       }
     } catch {
       setErrorMessage('An unexpected error occurred during signup. Please try again.');
@@ -86,44 +87,118 @@ export const Signup: React.FC = () => {
     }
   };
 
+  const handleResend = async () => {
+    if (resendLoading) return;
+    setResendLoading(true);
+    setResendError(null);
+    setResendSuccess(false);
+
+    try {
+      const { error } = await resendVerificationEmail(email.trim());
+      if (error) {
+        setResendError(error);
+      } else {
+        setResendSuccess(true);
+      }
+    } catch {
+      setResendError('Unable to resend verification email. Please try again.');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
       <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 mb-2">
-            <Sparkles className="w-6 h-6" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Create your account
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Start transforming vague prompts into powerful AI instructions.
-          </p>
-        </div>
-
-        {/* Validation / Auth Error Alert */}
-        {(validationError || errorMessage) && (
-          <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{validationError || errorMessage}</span>
-          </div>
-        )}
-
-        {/* Success / Verification Alert */}
-        {successMessage && (
-          <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 flex items-start gap-2.5 text-xs text-emerald-900 dark:text-emerald-200 animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">Check your email</p>
-              <p>{successMessage}</p>
+        {isSubmitted ? (
+          <>
+            {/* Verification Screen Header */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 mb-2">
+                <Mail className="w-6 h-6" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Account created successfully
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Please check your email and verify your account before signing in.
+              </p>
             </div>
-          </div>
-        )}
 
-        {/* Card */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {/* Card */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5 animate-fade-in">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/80 text-center font-medium text-sm text-slate-800 dark:text-slate-200 break-all">
+                {email.trim()}
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed text-center">
+                We've sent a verification link to your email address. Click the link in that email to confirm your account and activate your access.
+              </p>
+
+              {resendSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-xs text-emerald-700 dark:text-emerald-300">
+                  Verification email resent! Please check your inbox.
+                </div>
+              )}
+
+              {resendError && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-xs text-rose-700 dark:text-rose-300">
+                  {resendError}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                onClick={handleResend}
+                isLoading={resendLoading}
+                disabled={resendLoading}
+                className="w-full justify-center shadow-xs"
+                leftIcon={<RefreshCw className="w-4 h-4" />}
+              >
+                Resend verification email
+              </Button>
+
+              <Link to="/login" className="block">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  className="w-full justify-center"
+                  leftIcon={<ArrowLeft className="w-4 h-4" />}
+                >
+                  Back to Login
+                </Button>
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 mb-2">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                Create your account
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Start transforming vague prompts into powerful AI instructions.
+              </p>
+            </div>
+
+            {/* Validation / Auth Error Alert */}
+            {(validationError || errorMessage) && (
+              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{validationError || errorMessage}</span>
+              </div>
+            )}
+
+            {/* Card */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Full Name */}
             <div>
               <label
@@ -263,7 +338,9 @@ export const Signup: React.FC = () => {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
-  );
+      </>
+    )}
+  </div>
+</div>
+);
 };

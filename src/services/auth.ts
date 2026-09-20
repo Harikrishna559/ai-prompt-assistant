@@ -28,7 +28,10 @@ export async function signUp(
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: fullName ? { data: { full_name: fullName.trim() } } : undefined,
+      options: {
+        data: fullName ? { full_name: fullName.trim() } : undefined,
+        emailRedirectTo: `${window.location.origin}/verify-email`,
+      },
     });
 
     if (error) {
@@ -59,7 +62,7 @@ export async function signUp(
 export async function signIn(
   email: string,
   password: string
-): Promise<AuthResponse<SignInResult>> {
+): Promise<AuthResponse<SignInResult> & { isUnverified?: boolean }> {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -67,10 +70,33 @@ export async function signIn(
     });
 
     if (error) {
+      const mapped = mapAuthError(error.message);
+      const isUnverified =
+        mapped.toLowerCase().includes('verify your email') ||
+        error.message.toLowerCase().includes('email not confirmed');
       return {
         data: null,
-        error: mapAuthError(error.message),
+        error: mapped,
+        isUnverified,
       };
+    }
+
+    // Inspect user email verification state
+    if (data.user) {
+      const isGoogleUser =
+        data.user.app_metadata?.provider === 'google' ||
+        data.user.identities?.some((id) => id.provider === 'google');
+      const isEmailVerified = Boolean(data.user.email_confirmed_at) || Boolean(isGoogleUser);
+
+      if (!isEmailVerified) {
+        // Sign out immediately so unverified session does not remain active
+        await supabase.auth.signOut();
+        return {
+          data: null,
+          error: 'Please verify your email address before signing in.',
+          isUnverified: true,
+        };
+      }
     }
 
     return {
@@ -79,12 +105,60 @@ export async function signIn(
         session: data.session,
       },
       error: null,
+      isUnverified: false,
     };
   } catch {
     return {
       data: null,
       error: 'Unable to complete sign in. Please try again.',
     };
+  }
+}
+
+/**
+ * Resend email verification link for unconfirmed signup
+ */
+export async function resendVerificationEmail(
+  email: string
+): Promise<{ error: string | null }> {
+  try {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/verify-email`,
+      },
+    });
+
+    if (error) {
+      return { error: mapAuthError(error.message) };
+    }
+
+    return { error: null };
+  } catch {
+    return { error: 'Unable to resend verification email. Please try again.' };
+  }
+}
+
+/**
+ * Sign in with Google OAuth provider
+ */
+export async function signInWithGoogle(): Promise<{ error: string | null }> {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      return { error: mapAuthError(error.message) };
+    }
+
+    return { error: null };
+  } catch {
+    return { error: 'Unable to initiate Google sign-in. Please try again.' };
   }
 }
 
@@ -140,6 +214,66 @@ export function onAuthStateChange(
   callback: (event: AuthChangeEvent, session: Session | null) => void
 ): { data: { subscription: Subscription } } {
   return supabase.auth.onAuthStateChange(callback);
+}
+
+/**
+ * Request a password reset email
+ */
+export async function resetPasswordForEmail(
+  email: string
+): Promise<AuthResponse<null>> {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      return {
+        data: null,
+        error: mapAuthError(error.message),
+      };
+    }
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: 'Unable to send password reset email. Please try again.',
+    };
+  }
+}
+
+/**
+ * Update the current user's password (used in password reset / recovery flow)
+ */
+export async function updateUserPassword(
+  password: string
+): Promise<AuthResponse<User>> {
+  try {
+    const { data, error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    if (error) {
+      return {
+        data: null,
+        error: mapAuthError(error.message),
+      };
+    }
+
+    return {
+      data: data.user,
+      error: null,
+    };
+  } catch {
+    return {
+      data: null,
+      error: 'Unable to update password. Please try again.',
+    };
+  }
 }
 
 /**
