@@ -15,36 +15,36 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({ score }) => {
     {
       label: 'Clarity',
       value: score.clarity,
-      explanation: 'Clear and direct objective',
+      explanation: 'Clear, direct objective',
     },
     {
       label: 'Context',
       value: score.context,
-      explanation: 'Background and role framing',
+      explanation: 'Role framing & background',
     },
     {
       label: 'Specificity',
       value: score.specificity,
-      explanation: 'Concrete details and constraints',
+      explanation: 'Concrete details & bounds',
     },
     {
       label: 'Completeness',
       value: score.completeness,
-      explanation: 'Output format and boundary conditions',
+      explanation: 'Output format & acceptance criteria',
     },
   ];
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm transition-all">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800">
+    <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs transition-all">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-5 border-b border-sky-50 dark:border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Award className="w-5 h-5 text-indigo-500" />
+              <Award className="w-5 h-5 text-sky-500" />
               Prompt Quality Score
             </h3>
             <span
-              className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${scoreTheme.badgeBg}`}
+              className={`text-xs font-bold px-3 py-1 rounded-full ${scoreTheme.badgeBg}`}
             >
               {tier.label} Prompt
             </span>
@@ -55,7 +55,7 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({ score }) => {
         </div>
 
         {/* Overall Score Badge */}
-        <div className="flex items-baseline gap-1.5 bg-slate-50 dark:bg-slate-800/80 px-5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shrink-0">
+        <div className="flex items-baseline gap-1.5 bg-sky-50/80 dark:bg-slate-800/80 px-5 py-2.5 rounded-2xl border border-sky-200/80 dark:border-slate-700/80 shrink-0">
           <span className={`text-3xl sm:text-4xl font-black tracking-tight ${scoreTheme.text}`}>
             {score.overall}
           </span>
@@ -72,7 +72,7 @@ export const ScoreCard: React.FC<ScoreCardProps> = ({ score }) => {
           return (
             <div
               key={metric.label}
-              className="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
+              className="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-sky-50 dark:border-slate-800/80 hover:border-sky-200 dark:hover:border-slate-700 transition-colors"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>

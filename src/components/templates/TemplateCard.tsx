@@ -52,14 +52,14 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   return (
-    <div className="flex flex-col justify-between bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700/60 transition-all duration-200 group">
+    <div className="flex flex-col justify-between bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 shadow-xs hover:shadow-md hover:border-sky-300 dark:hover:border-sky-700/60 transition-all duration-200 group">
       <div>
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 group-hover:scale-105 transition-transform">
+          <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400 border border-sky-100 dark:border-sky-900/40 group-hover:scale-105 transition-transform">
             {ICON_MAP[template.iconName] || <Sparkles className="w-5 h-5" />}
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 dark:bg-slate-800 dark:text-sky-300 border border-sky-100 dark:border-slate-700">
             {template.category}
           </span>
         </div>
@@ -68,12 +68,12 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
           {template.title}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 leading-relaxed">
           {template.description}
         </p>
 
         {/* Example Prompt Box */}
-        <div className="relative mb-5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/60 dark:border-slate-800/80">
+        <div className="relative mb-5 p-3.5 rounded-xl bg-sky-50/40 dark:bg-slate-950/70 border border-sky-100 dark:border-slate-800/80">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Sample Prompt
@@ -93,12 +93,12 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
       </div>
 
       {/* Action */}
-      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80">
+      <div className="pt-3 border-t border-sky-50 dark:border-slate-800/80">
         <Button
           onClick={() => onUseTemplate(template)}
           variant="secondary"
           size="sm"
-          className="w-full group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-600 dark:group-hover:text-white transition-colors"
+          className="w-full group-hover:bg-sky-500 group-hover:text-white dark:group-hover:bg-sky-500 dark:group-hover:text-white transition-colors font-medium"
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
           Use Template

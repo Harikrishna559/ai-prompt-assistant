@@ -7,11 +7,11 @@ interface LoadingStateProps {
 }
 
 const STAGES = [
-  'Analyzing prompt...',
-  'Evaluating prompt quality...',
-  'Checking clarity & specificity...',
-  'Improving instructions...',
-  'Preparing improvements...',
+  'Connecting to NVIDIA NIM API...',
+  'Evaluating clarity & context score...',
+  'Analyzing specificity & completeness...',
+  'Building expert role & structural framework...',
+  'Finalizing optimized prompt deliverable...',
 ];
 
 export const LoadingState: React.FC<LoadingStateProps> = ({
@@ -27,22 +27,22 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-sm animate-fade-in">
+    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl shadow-xs animate-fade-in">
       {/* Visual pulse icon */}
       <div className="relative mb-6">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-0.5 shadow-md shadow-indigo-500/20">
-          <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-            <Sparkles className="w-8 h-8 animate-spin text-indigo-500" style={{ animationDuration: '6s' }} />
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 via-sky-600 to-blue-700 p-0.5 shadow-md shadow-sky-500/20">
+          <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center text-sky-600 dark:text-sky-400">
+            <Sparkles className="w-8 h-8 animate-spin text-sky-500" style={{ animationDuration: '6s' }} />
           </div>
         </div>
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 animate-ping" />
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-sky-400 rounded-full border-2 border-white dark:border-slate-900 animate-ping" />
       </div>
 
       <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
         {message}
       </h3>
       <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-sm">
-        Applying prompt engineering frameworks to generate structured recommendations.
+        Applying Meta Llama 3.3 prompt engineering frameworks to generate structured recommendations.
       </p>
 
       {/* Structured stages list */}
@@ -55,7 +55,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
               key={stage}
               className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs transition-all duration-200 ${
                 isCurrent
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold'
+                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold'
                   : isDone
                   ? 'text-emerald-600 dark:text-emerald-400 font-medium'
                   : 'text-slate-400 dark:text-slate-600 opacity-60'
@@ -65,7 +65,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : isCurrent ? (
                 <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-ping" />
+                  <div className="w-2 h-2 rounded-full bg-sky-600 dark:bg-sky-400 animate-ping" />
                 </div>
               ) : (
                 <Circle className="w-4 h-4 text-slate-300 dark:text-slate-700 shrink-0" />
@@ -79,7 +79,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       {/* Progress bar visual */}
       <div className="w-64 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-6">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+          className="h-full bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 rounded-full transition-all duration-300"
           style={{ width: `${((activeStage + 1) / STAGES.length) * 100}%` }}
         />
       </div>

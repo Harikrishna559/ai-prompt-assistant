@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { GoogleGenAI } from '@google/genai';
 
 interface ImproveRequestBody {
   prompt?: string;
@@ -7,7 +6,37 @@ interface ImproveRequestBody {
   variation?: number;
 }
 
-// Helper to safely send JSON response in any server environment (Node, Connect, Vercel)
+// In-memory rate limiting map (IP -> { count, resetTime })
+const ipRateLimits = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 15;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = ipRateLimits.get(ip);
+
+  if (!record || now > record.resetTime) {
+    ipRateLimits.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  record.count += 1;
+  return true;
+}
+
+function getClientIp(req: IncomingMessage): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket.remoteAddress || '127.0.0.1';
+}
+
+// Helper to safely send JSON response
 function sendJson(
   res: ServerResponse & { json?: (data: unknown) => void; status?: (code: number) => any },
   statusCode: number,
@@ -22,7 +51,7 @@ function sendJson(
   res.end(JSON.stringify(data));
 }
 
-// Helper to parse request body safely from incoming stream or pre-parsed body
+// Helper to parse request body safely
 async function parseBody(req: IncomingMessage & { body?: unknown }): Promise<ImproveRequestBody> {
   if (req.body && typeof req.body === 'object') {
     return req.body as ImproveRequestBody;
@@ -51,35 +80,132 @@ async function parseBody(req: IncomingMessage & { body?: unknown }): Promise<Imp
 }
 
 /**
- * Server-side Gemini API Handler
+ * Intelligent rule-based fallback generator when NVIDIA API key is unavailable or rate limited.
+ */
+function generateFallbackAnalysis(prompt: string, taskType: string, variation: number = 0) {
+  const trimmed = prompt.trim();
+  const wordCount = trimmed.split(/\s+/).length;
+  const hasQuestion = trimmed.includes('?');
+  const hasFormat = /format|table|bullet|json|list|markdown/i.test(trimmed);
+  const hasPersona = /act as|you are|as a|role/i.test(trimmed);
+
+  // Compute realistic scores
+  let clarity = Math.min(95, Math.max(50, 60 + (wordCount > 10 ? 20 : 5) + (hasQuestion ? 10 : 0)));
+  let context = Math.min(95, Math.max(45, 50 + (hasPersona ? 30 : 0) + (wordCount > 25 ? 15 : 0)));
+  let specificity = Math.min(95, Math.max(40, 45 + (wordCount > 30 ? 25 : 5) + (hasFormat ? 15 : 0)));
+  let completeness = Math.min(95, Math.max(40, 50 + (hasFormat ? 25 : 0) + (wordCount > 40 ? 20 : 0)));
+  let overall = Math.round((clarity + context + specificity + completeness) / 4);
+
+  const problems: string[] = [];
+  if (!hasPersona) problems.push('Missing expert persona framing (e.g., "Act as a Senior Lead")');
+  if (!hasFormat) problems.push('Lacks output format constraints (e.g., markdown headers, step-by-step, bullet points)');
+  if (wordCount < 15) problems.push('Prompt is very brief; lacks necessary background context and edge-case guidance');
+  if (!trimmed.includes('example') && !trimmed.includes('sample')) problems.push('No example or output benchmark provided');
+
+  if (problems.length === 0) {
+    problems.push('Could further define target audience expectations');
+    problems.push('Could enforce specific length/token bounds');
+  }
+
+  const taskRoleMap: Record<string, string> = {
+    Coding: 'Senior Principal Software Engineer & Systems Architect',
+    Writing: 'Master Editor & Content Strategist',
+    Research: 'Lead Research Scientist & Quantitative Analyst',
+    Education: 'Senior Pedagogical Specialist & Educator',
+    'Data Analysis': 'Lead Data Scientist & Business Intelligence Director',
+    Career: 'Executive Career Coach & Technical Recruiter',
+    Business: 'Management Consultant & Corporate Strategist',
+    'Social Media': 'Growth Marketing Director & Viral Content Strategist',
+    Email: 'Executive Communications Director',
+    'Image Generation': 'World-Class Visual Artist & Prompt Engineer',
+    General: 'Expert AI Systems Consultant',
+  };
+
+  const role = taskRoleMap[taskType] || taskRoleMap.General;
+
+  let improvedPrompt = `Act as a ${role}.
+
+CORE OBJECTIVE:
+${trimmed}
+
+KEY REQUIREMENTS:
+1. Scope & Depth: Provide a thorough, production-grade response covering all core aspects and edge cases.
+2. Structure: Organize the output logically using clear Markdown headings, bullet points, and code/example blocks where appropriate.
+3. Quality Standards: Avoid superficial generalizations; give concrete, actionable, high-impact details.
+4. Tone & Style: Maintain an authoritative, professional, and precise tone tailored for practical application.`;
+
+  if (variation > 0) {
+    improvedPrompt += `\n\nALTERNATIVE ANGLE (Variation ${variation}):
+Focus heavily on edge-case stress testing, risk mitigation, and a step-by-step checklist execution model.`;
+  }
+
+  return {
+    id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    originalPrompt: trimmed,
+    taskType,
+    score: {
+      overall,
+      clarity,
+      context,
+      specificity,
+      completeness,
+    },
+    problems,
+    improvedPrompt,
+    whyBetter: [
+      `Establishes explicit expert role persona (${role})`,
+      'Adds clear structural constraints and markdown formatting guidelines',
+      'Prevents ambiguous or superficial AI responses by demanding concrete depth',
+      'Provides clear execution bounds and quality benchmarks',
+    ],
+    suggestions: [
+      'Specify target audience experience level for tailored answers',
+      'Include 1-2 positive or negative output examples',
+      'Explicitly state desired output length or line count',
+    ],
+    createdAt: new Date().toISOString(),
+    source: 'nvidia-fallback-engine',
+  };
+}
+
+/**
+ * Server-side NVIDIA NIM API Handler
  * Endpoint: POST /api/improve
- *
- * Security:
- * - Reads process.env.GEMINI_API_KEY strictly on the server side.
- * - Never returns, logs, or exposes the API key to client-side code.
  */
 export default async function handler(
   req: IncomingMessage & { body?: unknown },
   res: ServerResponse & { json?: (data: unknown) => void; status?: (code: number) => any }
 ) {
-  // Safe health/status check via GET for diagnostics and smoke testing
+  // GET endpoint status check
   if (req.method === 'GET') {
-    const rawKey = process.env.GEMINI_API_KEY?.trim();
-    const hasKey = Boolean(rawKey && rawKey.length > 0 && rawKey !== 'your_gemini_api_key_here');
+    const rawKey = process.env.NVIDIA_API_KEY?.trim();
+    const hasKey = Boolean(rawKey && rawKey.length > 0 && !rawKey.includes('your_nvidia_api_key'));
+    const modelName = process.env.NVIDIA_MODEL?.trim() || 'meta/llama-3.3-70b-instruct';
     return sendJson(res, 200, {
       status: 'ok',
       endpoint: '/api/improve',
       method: 'POST',
+      provider: 'NVIDIA NIM API',
+      model: modelName,
       apiKeyConfigured: hasKey,
       message: hasKey
-        ? 'Gemini API foundation is live and API key is detected.'
-        : 'Gemini API foundation is live. GEMINI_API_KEY is not configured yet (add it to .env).',
+        ? 'NVIDIA NIM API integration active.'
+        : 'NVIDIA NIM API key pending. Smart fallback engine active for public visitors.',
     });
   }
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET, POST');
     return sendJson(res, 405, { error: 'Method Not Allowed. Use POST.' });
+  }
+
+  // Rate Limiting Check
+  const clientIp = getClientIp(req);
+  if (!checkRateLimit(clientIp)) {
+    return sendJson(res, 429, {
+      error: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many requests. Please wait a minute before analyzing another prompt.',
+    });
   }
 
   try {
@@ -89,149 +215,45 @@ export default async function handler(
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
       return sendJson(res, 400, {
         error: 'INVALID_REQUEST',
-        message: 'Please enter a valid prompt and try again.',
+        message: 'Please enter a valid prompt to improve.',
       });
     }
 
     if (prompt.length > 5000) {
       return sendJson(res, 400, {
         error: 'INVALID_REQUEST',
-        message: 'Your prompt exceeds the 5000 character limit.',
+        message: 'Prompt exceeds the maximum character limit of 5,000 characters.',
       });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY?.trim();
+    const apiKey = process.env.NVIDIA_API_KEY?.trim();
+    const model = process.env.NVIDIA_MODEL?.trim() || 'meta/llama-3.3-70b-instruct';
+
     const isApiKeyConfigured = Boolean(
-      apiKey && apiKey.length > 0 && apiKey !== 'your_gemini_api_key_here'
+      apiKey && apiKey.length > 0 && !apiKey.includes('your_nvidia_api_key')
     );
 
-    // If API key is configured, execute real server-side Gemini call
-    if (isApiKeyConfigured && apiKey) {
-      try {
-        const ai = new GoogleGenAI({ apiKey });
+    // If NVIDIA API key is not configured, return smart fallback instantly
+    if (!isApiKeyConfigured) {
+      const fallback = generateFallbackAnalysis(prompt, taskType, variation);
+      return sendJson(res, 200, fallback);
+    }
 
-        const getTaskTypeGuidance = (type: string): string => {
-          switch (type) {
-            case 'Coding':
-              return `TASK-SPECIFIC GUIDANCE (Coding):
-- Define explicit functional requirements and expected system behavior.
-- Specify technical constraints: runtime/framework versions, libraries, typing (e.g., TypeScript), and component architecture.
-- Clarify input/output formats, data structures, and function signatures.
-- Highlight edge cases, error handling, performance considerations, and testability.
-- Request modular, clean, and production-ready code with setup instructions.`;
-
-            case 'Writing':
-              return `TASK-SPECIFIC GUIDANCE (Writing):
-- Define the target audience, their background knowledge, and reading level.
-- Specify the desired tone (e.g., authoritative, conversational, persuasive, empathetic).
-- State the core purpose, key arguments, and takeaway messages.
-- Specify structural guidelines: headings, paragraphs, transitions, and narrative arc.
-- Establish length constraints (word count or section targets) and stylistic rules.`;
-
-            case 'Research':
-              return `TASK-SPECIFIC GUIDANCE (Research):
-- Formulate a focused research question and clear investigation objective.
-- Define the scope, boundaries, and inclusion/exclusion criteria.
-- Specify source requirements: peer-reviewed literature, empirical data, or credible industry reports.
-- Request a structured synthesis: executive summary, methodology, findings, and citations.
-- Include analytical constraints: counterarguments, limitations, and future implications.`;
-
-            case 'Education':
-              return `TASK-SPECIFIC GUIDANCE (Education):
-- Identify the target learner's grade level, prior knowledge, and learning goals.
-- Incorporate pedagogical techniques: analogies, conceptual intuition, and step-by-step scaffolding.
-- Request interactive checks for understanding: practice exercises, quizzes, or reflection prompts.
-- Address common misconceptions and provide clear, concrete examples.
-- Specify an organized educational format (e.g., study guide, lesson plan, tutorial).`;
-
-            case 'Data Analysis':
-              return `TASK-SPECIFIC GUIDANCE (Data Analysis):
-- Describe the data schema, variables, data types, and potential data quality nuances.
-- Specify analytical objectives: exploratory data analysis, hypothesis testing, regression, or clustering.
-- Define expected metrics, KPIs, and statistical significance thresholds.
-- Detail visualization preferences: chart types, axes, labeling, and tool choices (e.g., Pandas, Seaborn, Tableau).
-- Request actionable business interpretations and strategic recommendations based on insights.`;
-
-            case 'Career':
-              return `TASK-SPECIFIC GUIDANCE (Career):
-- Specify the target role, seniority level, industry, and hiring manager perspective.
-- Emphasize quantifiable achievements, action verbs, and STAR methodology (Situation, Task, Action, Result).
-- Ensure a professional, confident, and authentic tone.
-- Tailor keywords to relevant industry job descriptions and ATS (Applicant Tracking Systems).
-- Produce concrete deliverables (e.g., polished resume bullet points, tailored cover letter, or interview answers).`;
-
-            case 'Business':
-              return `TASK-SPECIFIC GUIDANCE (Business):
-- Frame the core business problem, strategic objectives, and stakeholder priorities.
-- Define the target market, customer persona, and unique value proposition.
-- Incorporate operational constraints: budget, timeline, resources, and risk factors.
-- Specify measurable outcomes: ROI, conversion rates, customer lifetime value, or cost savings.
-- Format for executive readability: executive summary, strategic pillars, and next steps.`;
-
-            case 'Social Media':
-              return `TASK-SPECIFIC GUIDANCE (Social Media):
-- Tailor the prompt to the specific platform (e.g., LinkedIn, Twitter/X, Instagram, YouTube).
-- Craft an attention-grabbing hook and compelling storytelling format.
-- Define the audience persona and community engagement angle.
-- Include clear calls-to-action (CTA) to encourage comments, shares, or clicks.
-- Specify formatting: line breaks, character limits, emoji balance, and relevant hashtags.`;
-
-            case 'Email':
-              return `TASK-SPECIFIC GUIDANCE (Email):
-- Establish the recipient relationship, context, and seniority hierarchy.
-- State the single primary purpose clearly in the first two sentences.
-- Maintain appropriate formality, politeness, and professional brevity.
-- Include a high-converting, friction-free Call to Action (CTA) with clear next steps.
-- Provide a compelling subject line and professional sign-off.`;
-
-            case 'Image Generation':
-              return `TASK-SPECIFIC GUIDANCE (Image Generation):
-- Define the primary subject, focal point, and action in rich visual detail.
-- Specify artistic style, medium, and aesthetic (e.g., photorealistic, digital oil painting, 3D render, minimalist vector).
-- Detail the environment, lighting (e.g., golden hour, volumetric studio lighting), and color palette.
-- Detail camera parameters: perspective, focal length, depth of field, and framing.
-- Specify aspect ratio, resolution targets, and negative prompts (what to avoid).`;
-
-            case 'General':
-            default:
-              return `TASK-SPECIFIC GUIDANCE (General):
-- Clarify the overarching goal and intended outcome.
-- Provide rich background context, persona framing, and operational constraints.
-- Specify the exact desired output format, structure, and tone.
-- Eliminate ambiguities and establish quality benchmarks.`;
-          }
-        };
-
-        const taskGuidance = getTaskTypeGuidance(taskType);
-
-        const systemInstruction = `You are an elite AI prompt engineer and instruction optimization expert.
+    // Call NVIDIA NIM OpenAI-compatible chat completion endpoint
+    const systemPrompt = `You are an elite AI prompt engineer and instruction optimization expert.
 Your mission is to analyze the user's input prompt for the task category "${taskType}" and transform it into a high-performance, production-ready AI prompt.
 
 CORE OPTIMIZATION PRINCIPLES:
-1. PRESERVE ORIGINAL INTENT: Faithfully maintain what the user wants to accomplish. Never change their underlying goal or replace their topic with something unrelated.
-2. IDENTIFY REAL WEAKNESSES: Identify genuine, concrete shortcomings in the user's prompt (e.g., missing context, unspecified constraints, ambiguous wording, omitted output format). Do NOT fabricate trivial or non-existent problems.
-3. ELEVATE THE FOUR KEY PILLARS:
-   - Clarity: Remove vagueness, contradictory instructions, and jargon.
-   - Context: Provide role framing, persona, background, and target audience.
-   - Specificity: Provide concrete requirements, parameters, examples, and boundaries.
-   - Completeness: Define exact output structure, edge cases, format constraints, and quality criteria.
-4. PRODUCE A PRACTICAL IMPROVED PROMPT: The rewritten prompt must be immediately copy-pasteable into Gemini, Claude, or ChatGPT and yield vastly superior, deterministic results.
-5. EXPLAIN WHY IT IS BETTER: Provide concise, persuasive explanations of how the enhancements improve output quality.
-6. ACTIONABLE SUGGESTIONS: Give practical tips the user can apply to future prompts in this domain.
+1. PRESERVE INTENT: Faithfully maintain what the user wants to accomplish.
+2. IDENTIFY WEAKNESSES: Identify 2-4 real shortcomings (missing context, missing output format, vagueness).
+3. ELEVATE THE FOUR PILLARS: Clarity, Context, Specificity, Completeness.
+4. PRACTICAL IMPROVED PROMPT: Ready to copy-paste into ChatGPT, Claude, or Gemini.
+5. EXPLAIN WHY IT IS BETTER: 3-5 clear points.
+6. ACTIONABLE SUGGESTIONS: 2-4 tips for future prompts.
 
-${taskGuidance}
+${variation > 0 ? `VARIATION DIRECTIVE (Variation #${variation}): Focus on an alternative architectural or execution angle.` : ''}
 
-${variation > 0 ? `VARIATION DIRECTIVE (Variation #${variation}): Provide a distinct, alternative architectural approach or creative angle while strictly maintaining the user's core intent and domain standards.` : ''}
-
-SCORING CRITERIA (0-100 scale for user's ORIGINAL prompt):
-- overall: Holistic prompt effectiveness score.
-- clarity: How clear and unambiguous the original instruction is.
-- context: How well role, background, and audience are framed.
-- specificity: Presence of concrete details, constraints, and parameters.
-- completeness: Presence of output format, boundaries, and acceptance criteria.
-
-OUTPUT FORMAT REQUIREMENTS:
-You MUST return ONLY a valid, parseable JSON object matching this exact schema:
+You MUST return ONLY a JSON object matching this exact schema:
 {
   "score": {
     "overall": number (0-100),
@@ -240,172 +262,95 @@ You MUST return ONLY a valid, parseable JSON object matching this exact schema:
     "specificity": number (0-100),
     "completeness": number (0-100)
   },
-  "problems": string[] (2 to 4 concrete weaknesses),
-  "improvedPrompt": string (complete, production-ready, improved prompt string),
-  "whyBetter": string[] (3 to 5 clear reasons why this version produces superior results),
-  "suggestions": string[] (2 to 4 actionable suggestions for future prompts)
+  "problems": ["problem 1", "problem 2"],
+  "improvedPrompt": "complete rewritten prompt",
+  "whyBetter": ["reason 1", "reason 2"],
+  "suggestions": ["tip 1", "tip 2"]
 }`;
 
-        let response: any = null;
-        let lastError: any = null;
+    const userMessage = `Analyze and improve this ${taskType} prompt:\n\n"""\n${prompt.trim()}\n"""`;
 
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            response = await ai.models.generateContent({
-              model: 'gemini-3.8-flash',
-              contents: `Analyze and improve this prompt:\n"""${prompt.trim()}"""`,
-              config: {
-                systemInstruction,
-                responseMimeType: 'application/json',
-                temperature: variation > 0 ? 0.85 : 0.7,
-              },
-            });
-            break;
-          } catch (err: any) {
-            lastError = err;
-            const msg = typeof err === 'string' ? err : (err?.message || JSON.stringify(err) || '');
-            const isTransient =
-              err?.status === 503 ||
-              err?.status === 'UNAVAILABLE' ||
-              err?.code === 503 ||
-              err?.error?.code === 503 ||
-              err?.status === 429 ||
-              msg.includes('503') ||
-              msg.includes('high demand') ||
-              msg.includes('UNAVAILABLE');
+    try {
+      const nvidiaRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          temperature: variation > 0 ? 0.8 : 0.6,
+          top_p: 0.9,
+          max_tokens: 2048,
+          response_format: { type: 'json_object' },
+        }),
+      });
 
-            if (isTransient && attempt < 3) {
-              await new Promise((resolve) => setTimeout(resolve, 2500 * attempt));
-              continue;
-            }
-            throw err;
-          }
-        }
+      if (!nvidiaRes.ok) {
+        const errorText = await nvidiaRes.text();
+        console.warn(`[NVIDIA API Error ${nvidiaRes.status}]:`, errorText.slice(0, 300));
 
-        if (!response) {
-          throw lastError || new Error('Gemini API call returned empty response');
-        }
-
-        const rawText = response.text || '{}';
-        const parsed = JSON.parse(rawText);
-
-        const structuredResponse = {
-          id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          originalPrompt: prompt.trim(),
-          taskType,
-          score: {
-            overall: typeof parsed.score?.overall === 'number' ? parsed.score.overall : 82,
-            clarity: typeof parsed.score?.clarity === 'number' ? parsed.score.clarity : 80,
-            context: typeof parsed.score?.context === 'number' ? parsed.score.context : 80,
-            specificity: typeof parsed.score?.specificity === 'number' ? parsed.score.specificity : 85,
-            completeness: typeof parsed.score?.completeness === 'number' ? parsed.score.completeness : 83,
-          },
-          problems: Array.isArray(parsed.problems) && parsed.problems.length > 0
-            ? parsed.problems
-            : ['Needs additional context', 'Missing output format constraint'],
-          improvedPrompt: parsed.improvedPrompt || prompt.trim(),
-          whyBetter: Array.isArray(parsed.whyBetter) && parsed.whyBetter.length > 0
-            ? parsed.whyBetter
-            : ['Clear structure', 'Added constraints', 'Defined expected output'],
-          suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0
-            ? parsed.suggestions
-            : ['Specify target audience', 'Provide example outputs'],
-          createdAt: new Date().toISOString(),
-          source: 'gemini-api',
-        };
-
-        return sendJson(res, 200, structuredResponse);
-      } catch (geminiError: any) {
-        const errorMsg =
-          typeof geminiError === 'string'
-            ? geminiError
-            : geminiError?.message || JSON.stringify(geminiError) || '';
-        const statusCode =
-          geminiError?.status ||
-          geminiError?.code ||
-          geminiError?.error?.code;
-
-        // Quota / Rate Limit Exceeded (HTTP 429 / RESOURCE_EXHAUSTED)
-        const isQuotaExceeded =
-          statusCode === 429 ||
-          statusCode === 'RESOURCE_EXHAUSTED' ||
-          geminiError?.status === 'RESOURCE_EXHAUSTED' ||
-          errorMsg.includes('429') ||
-          errorMsg.includes('RESOURCE_EXHAUSTED') ||
-          errorMsg.includes('quota') ||
-          errorMsg.includes('Quota exceeded');
-
-        if (isQuotaExceeded) {
-          console.warn('[Gemini API]: Quota limit reached (429 RESOURCE_EXHAUSTED)');
-          return sendJson(res, 429, {
-            error: 'QUOTA_EXCEEDED',
-            message: 'AI usage limit reached. Please try again later.',
-          });
-        }
-
-        // Temporary Service Unavailable (HTTP 503 / UNAVAILABLE)
-        const isUnavailable =
-          statusCode === 503 ||
-          statusCode === 'UNAVAILABLE' ||
-          geminiError?.status === 'UNAVAILABLE' ||
-          errorMsg.includes('503') ||
-          errorMsg.includes('high demand') ||
-          errorMsg.includes('UNAVAILABLE');
-
-        if (isUnavailable) {
-          console.warn('[Gemini API]: Service temporarily unavailable (503 UNAVAILABLE)');
-          return sendJson(res, 503, {
-            error: 'SERVICE_UNAVAILABLE',
-            message: 'The AI service is temporarily unavailable. Please try again.',
-          });
-        }
-
-        // Other upstream or unexpected errors from Gemini (safe user-facing message, no leaked keys)
-        console.error('[Gemini Server Error]:', errorMsg);
-        return sendJson(res, 500, {
-          error: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while improving your prompt. Please try again.',
-        });
+        // If rate-limited or quota exceeded upstream, use smart fallback so user is never blocked
+        const fallback = generateFallbackAnalysis(prompt, taskType, variation);
+        return sendJson(res, 200, fallback);
       }
+
+      const nvidiaData = (await nvidiaRes.json()) as any;
+      const content = nvidiaData?.choices?.[0]?.message?.content;
+
+      if (!content) {
+        const fallback = generateFallbackAnalysis(prompt, taskType, variation);
+        return sendJson(res, 200, fallback);
+      }
+
+      // Parse JSON from NVIDIA output
+      let parsed: any;
+      try {
+        const cleaned = content.replace(/```json\n?|\n?```/g, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        const fallback = generateFallbackAnalysis(prompt, taskType, variation);
+        return sendJson(res, 200, fallback);
+      }
+
+      const structuredResponse = {
+        id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        originalPrompt: prompt.trim(),
+        taskType,
+        score: {
+          overall: typeof parsed.score?.overall === 'number' ? parsed.score.overall : 84,
+          clarity: typeof parsed.score?.clarity === 'number' ? parsed.score.clarity : 82,
+          context: typeof parsed.score?.context === 'number' ? parsed.score.context : 80,
+          specificity: typeof parsed.score?.specificity === 'number' ? parsed.score.specificity : 85,
+          completeness: typeof parsed.score?.completeness === 'number' ? parsed.score.completeness : 83,
+        },
+        problems: Array.isArray(parsed.problems) && parsed.problems.length > 0
+          ? parsed.problems
+          : ['Needs additional context', 'Missing output format constraint'],
+        improvedPrompt: parsed.improvedPrompt || prompt.trim(),
+        whyBetter: Array.isArray(parsed.whyBetter) && parsed.whyBetter.length > 0
+          ? parsed.whyBetter
+          : ['Clear structure', 'Added expert persona', 'Defined expected output'],
+        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0
+          ? parsed.suggestions
+          : ['Specify target audience', 'Provide example outputs'],
+        createdAt: new Date().toISOString(),
+        source: 'nvidia-nim-api',
+      };
+
+      return sendJson(res, 200, structuredResponse);
+    } catch (nvidiaErr: any) {
+      console.warn('[NVIDIA Request Failed - Using Fallback Engine]:', nvidiaErr?.message || nvidiaErr);
+      const fallback = generateFallbackAnalysis(prompt, taskType, variation);
+      return sendJson(res, 200, fallback);
     }
-
-    // Controlled server foundation response when API key is not yet set
-    const foundationResponse = {
-      id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      originalPrompt: prompt.trim(),
-      taskType,
-      score: {
-        overall: 82,
-        clarity: 84,
-        context: 78,
-        specificity: 80,
-        completeness: 86,
-      },
-      problems: [
-        'Missing target audience or user persona',
-        'Output format and constraints not explicitly defined',
-        'Lacks step-by-step guidance for complex requests',
-      ],
-      improvedPrompt: `Act as a senior expert in ${taskType}. Please address the following request with depth, structure, and precision:\n\n"${prompt.trim()}"\n\nRequirements:\n1. Provide a step-by-step breakdown with actionable recommendations.\n2. State any assumptions and prerequisites.\n3. Format the response with clear headings, bullet points, and practical examples.\n4. Avoid generic advice; focus on concrete, high-impact strategies.`,
-      whyBetter: [
-        'Establishes an authoritative expert role persona',
-        'Provides explicit structure and output requirements',
-        'Constrains the AI from outputting superficial responses',
-        'Ensures actionable, high-quality deliverables',
-      ],
-      suggestions: [
-        'Always specify the target audience or reader background',
-        'Include constraints on length, tone, or format',
-        'Provide one concrete example of the desired output',
-      ],
-      createdAt: new Date().toISOString(),
-      source: 'server-foundation',
-      apiKeyConfigured: false,
-    };
-
-    return sendJson(res, 200, foundationResponse);
   } catch (err: any) {
-    console.error('[API Improve Handler Error]:', err?.message || err);
+    console.error('[API Handler Error]:', err?.message || err);
     return sendJson(res, 500, {
       error: 'INTERNAL_SERVER_ERROR',
       message: 'Something went wrong while improving your prompt. Please try again.',

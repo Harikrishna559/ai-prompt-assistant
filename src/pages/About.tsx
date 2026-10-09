@@ -5,8 +5,7 @@ import {
   Lightbulb,
   Cpu,
   Info,
-  Database,
-  KeyRound,
+  ShieldCheck,
   Rocket,
   Code2,
   Terminal,
@@ -22,52 +21,50 @@ export const About: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Header */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>About the Platform</span>
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-sky-500" />
+          <span>Platform Architecture & Vision</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           Engineering Better Human-to-AI Communication
         </h1>
         <p className="text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-          "Turn vague prompts into clear, powerful AI instructions."
+          "Turn Simple Ideas into Powerful AI Prompts."
         </p>
       </div>
 
       {/* Problem & Solution Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-rose-200/70 dark:border-rose-950/60 bg-rose-50/20 dark:bg-rose-950/10">
-          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+        <Card className="border-amber-200/70 dark:border-amber-950/60 bg-amber-50/20 dark:bg-amber-950/10">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
             <HelpCircle className="w-5 h-5" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Problem
+            The Problem
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-            Many users struggle to write effective AI prompts, resulting in vague, incomplete, or inconsistent AI responses.
-            Without explicit personas, scope boundaries, output formatting instructions, and constraints, even frontier LLMs frequently hallucinate or produce generic, low-value answers.
+            Most users interact with LLMs using vague, unconstrained one-liners. Without explicit role personas, context boundaries, output formatting instructions, and negative constraints, AI models produce generic, repetitive, or inaccurate answers.
           </p>
         </Card>
 
-        <Card className="border-emerald-200/70 dark:border-emerald-950/60 bg-emerald-50/20 dark:bg-emerald-950/10">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+        <Card className="border-sky-200/70 dark:border-sky-950/60 bg-sky-50/20 dark:bg-sky-950/10">
+          <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4">
             <Lightbulb className="w-5 h-5" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Solution
+            The Solution
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-            AI Prompt Improvement Assistant analyzes prompt quality and provides an improved version with explanations and suggestions.
-            By applying cognitive scaffolding, structured parameters, and role-based prompt engineering principles, it elevates ambiguous one-liners into deterministic, high-impact instructions.
+            AI Prompt Improvement Assistant automatically audits prompt quality across clarity, context, specificity, and completeness, then applies proven prompt engineering frameworks to generate production-ready instructions.
           </p>
         </Card>
       </div>
 
       {/* How It Works 5-Step Process */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-            How It Works
+            Optimization Methodology
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Our systematic five-stage optimization lifecycle:
@@ -78,45 +75,45 @@ export const About: React.FC = () => {
           {[
             {
               step: '1',
-              title: 'Enter Prompt',
+              title: 'Input Raw Idea',
               desc: 'Provide your initial thought, brief question, or raw task request.',
-              icon: <Terminal className="w-4 h-4 text-indigo-500" />,
+              icon: <Terminal className="w-4 h-4 text-sky-500" />,
             },
             {
               step: '2',
-              title: 'Analyze Prompt',
+              title: 'Analyze Four Pillars',
               desc: 'Evaluated across four core dimensions: clarity, context, specificity, and completeness.',
-              icon: <SlidersHorizontal className="w-4 h-4 text-blue-500" />,
+              icon: <SlidersHorizontal className="w-4 h-4 text-sky-500" />,
             },
             {
               step: '3',
-              title: 'Identify Weaknesses',
-              desc: 'Missing targets, ambiguous instructions, and lack of constraints are highlighted with actionable alerts.',
+              title: 'Identify Shortcomings',
+              desc: 'Detects missing target persona, unspecified formatting constraints, and ambiguous terms.',
               icon: <AlertCircle className="w-4 h-4 text-amber-500" />,
             },
             {
               step: '4',
-              title: 'Improve Prompt',
-              desc: 'Synthesizes an augmented prompt containing context, persona, structure, and guardrails.',
-              icon: <Wand2 className="w-4 h-4 text-purple-500" />,
+              title: 'Apply Frameworks',
+              desc: 'Injects role framing, domain expertise, step-by-step guidance, and quality bounds.',
+              icon: <Wand2 className="w-4 h-4 text-sky-500" />,
             },
             {
               step: '5',
-              title: 'Get Better Results',
-              desc: 'Receive a clearer and more effective prompt ready for copy-paste with practical craftsmanship suggestions.',
+              title: 'Deliverable Generation',
+              desc: 'Receive a copy-paste ready prompt with actionable tips for future prompting.',
               icon: <Award className="w-4 h-4 text-emerald-500" />,
             },
           ].map((item) => (
             <div
               key={item.step}
-              className="flex items-start gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
+              className="flex items-start gap-4 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-sky-50 dark:border-slate-800 hover:border-sky-200 dark:hover:border-slate-700 transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 flex items-center justify-center shrink-0">
                 {item.icon}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-500">
                     Step {item.step}
                   </span>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -133,36 +130,36 @@ export const About: React.FC = () => {
       </div>
 
       {/* Technologies Used */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-indigo-500" />
+            <Cpu className="w-5 h-5 text-sky-500" />
             Technologies Used
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Built using modern, type-safe full-stack web standards:
+            Built using modern, high-performance web standards:
           </p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
-            { name: 'React', badge: 'v19 Frontend' },
+            { name: 'React 19', badge: 'Frontend Library' },
             { name: 'TypeScript', badge: 'Strict Typing' },
-            { name: 'Vite', badge: 'Build Tool' },
-            { name: 'Tailwind CSS', badge: 'Responsive UI' },
-            { name: 'Gemini API', badge: 'AI Engine' },
-            { name: 'Supabase Auth', badge: 'OAuth & Email' },
-            { name: 'Supabase PostgreSQL', badge: 'Database & RLS' },
-            { name: 'Vercel', badge: 'Serverless & Edge' },
+            { name: 'Vite 8', badge: 'Build Tool' },
+            { name: 'Tailwind CSS', badge: 'Sky-Blue Theme' },
+            { name: 'NVIDIA NIM API', badge: 'Llama 3.3 70B' },
+            { name: 'Browser Storage', badge: '100% Local History' },
+            { name: 'Lucide Icons', badge: 'UI Icons' },
+            { name: 'Vercel', badge: 'Serverless Platform' },
           ].map((tech) => (
             <div
               key={tech.name}
-              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-center"
+              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-50 dark:border-slate-800 text-center"
             >
               <span className="text-sm font-bold text-slate-800 dark:text-slate-200 block">
                 {tech.name}
               </span>
-              <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+              <span className="text-[11px] text-sky-600 dark:text-sky-400 font-medium">
                 {tech.badge}
               </span>
             </div>
@@ -170,80 +167,74 @@ export const About: React.FC = () => {
         </div>
       </div>
 
-      {/* Production Architecture & Features Section */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+      {/* Architecture Features */}
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Rocket className="w-5 h-5 text-purple-500" />
-            Production Architecture & Features
+            <Rocket className="w-5 h-5 text-sky-500" />
+            Core Capabilities
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Fully implemented production capabilities:
+            Engineered for speed, privacy, and public usability:
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             {
-              phase: 'AI Engine',
-              title: 'Gemini API Optimization',
-              desc: 'Serverless integration with Google Gemini models for automated prompt analysis, scoring, and multi-modal refinement.',
-              status: 'Completed',
-              icon: <Sparkles className="w-4 h-4 text-blue-500" />,
-              badgeClass: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
+              phase: 'AI Provider',
+              title: 'NVIDIA NIM Integration',
+              desc: 'High-speed OpenAI-compatible API endpoint executing Meta Llama 3.3 70B Instruct with rule-based fallback fallback protection.',
+              icon: <Sparkles className="w-4 h-4 text-sky-500" />,
+              badgeClass: 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
             },
             {
-              phase: 'Security',
-              title: 'Supabase Authentication',
-              desc: 'Secure email/password signup, mandatory email verification, Google OAuth single sign-on, and password recovery.',
-              status: 'Completed',
-              icon: <KeyRound className="w-4 h-4 text-amber-500" />,
-              badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
-            },
-            {
-              phase: 'Data Layer',
-              title: 'Supabase PostgreSQL & RLS',
-              desc: 'PostgreSQL database with Row Level Security enforcing strict user data isolation (auth.uid() = user_id).',
-              status: 'Completed',
-              icon: <Database className="w-4 h-4 text-indigo-500" />,
-              badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
-            },
-            {
-              phase: 'Analytics',
-              title: 'Dashboard & Prompt History',
-              desc: 'Real-time user metrics, average quality scores, search, filtering, and prompt history persistence.',
-              status: 'Completed',
-              icon: <Award className="w-4 h-4 text-emerald-500" />,
+              phase: 'Public Access',
+              title: 'Zero Login Requirement',
+              desc: 'Immediate access for all visitors without forced account registration, passwords, or OAuth bottlenecks.',
+              icon: <ShieldCheck className="w-4 h-4 text-emerald-500" />,
               badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
             },
             {
-              phase: 'Templates',
-              title: 'Curated Prompt Patterns',
-              desc: 'Ready-to-use prompt templates across coding, writing, research, career, and business domains.',
-              status: 'Completed',
+              phase: 'Privacy First',
+              title: 'Browser Local Storage',
+              desc: 'Prompt history is saved exclusively in the user browser local storage with zero server database tracking.',
+              icon: <ShieldCheck className="w-4 h-4 text-indigo-500" />,
+              badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
+            },
+            {
+              phase: 'Abuse Control',
+              title: 'Server-Side Rate Limiting',
+              desc: 'IP sliding window rate limiting and input length bounds protect serverless infrastructure.',
+              icon: <Award className="w-4 h-4 text-amber-500" />,
+              badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+            },
+            {
+              phase: 'Library',
+              title: 'Curated Templates',
+              desc: 'Pre-engineered prompt patterns spanning Coding, Writing, Research, Career, and Business.',
               icon: <Code2 className="w-4 h-4 text-purple-500" />,
               badgeClass: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300',
             },
             {
               phase: 'Infrastructure',
-              title: 'Vercel Edge Deployment',
-              desc: 'Fast global edge distribution, serverless API execution, SPA routing rewrites, and strict security posture.',
-              status: 'Completed',
+              title: 'Vercel Deployment',
+              desc: 'Fast serverless execution, SPA route handling, and optimized asset delivery.',
               icon: <Rocket className="w-4 h-4 text-rose-500" />,
               badgeClass: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
             },
           ].map((item) => (
             <div
               key={item.phase}
-              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex flex-col justify-between space-y-3"
+              className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-50 dark:border-slate-800 flex flex-col justify-between space-y-3"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shrink-0">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 shrink-0">
                     {item.icon}
                   </div>
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${item.badgeClass}`}>
-                    {item.status}
+                    Active
                   </span>
                 </div>
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -261,15 +252,15 @@ export const About: React.FC = () => {
         </div>
       </div>
 
-      {/* Production Architecture Notice */}
-      <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 flex items-start gap-3 text-indigo-900 dark:text-indigo-200">
-        <Info className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+      {/* Production Notice */}
+      <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/60 flex items-start gap-3 text-sky-900 dark:text-sky-200">
+        <Info className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
         <div className="text-xs sm:text-sm leading-relaxed space-y-1">
           <p className="font-semibold">
-            Production Architecture
+            Public SaaS Platform
           </p>
           <p>
-            AI Prompt Improvement Assistant is fully integrated with the Google Gemini API for prompt optimization, Supabase Auth with email verification & Google OAuth, Supabase PostgreSQL with strict Row Level Security, and Vercel edge deployment.
+            AI Prompt Improvement Assistant is deployed at <a href="https://ai-prompt-assistant-jet.vercel.app" target="_blank" rel="noopener noreferrer" className="underline font-medium">ai-prompt-assistant-jet.vercel.app</a>. It provides high-performance prompt engineering tools powered by NVIDIA NIM & Meta Llama 3.3.
           </p>
         </div>
       </div>

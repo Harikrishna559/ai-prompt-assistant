@@ -15,7 +15,7 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
   return (
     <div className="space-y-6">
       {/* Identified Weaknesses */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
@@ -39,7 +39,7 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
       </div>
 
       {/* Why This Is Better */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
@@ -63,23 +63,23 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
       </div>
 
       {/* Optimization Suggestions */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-indigo-500 shrink-0" />
-            Optimization Suggestions
+            <Lightbulb className="w-5 h-5 text-sky-500 shrink-0" />
+            Optimization Best Practices
           </h4>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
-            Best Practices
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/60">
+            Pro Tips
           </span>
         </div>
         <ul className="space-y-2.5">
           {suggestions.map((suggestion, index) => (
             <li
               key={index}
-              className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300"
+              className="flex items-start gap-3 p-3 rounded-xl bg-sky-50/50 dark:bg-slate-800/40 border border-sky-100 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300"
             >
-              <ArrowUpRight className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              <ArrowUpRight className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
               <span className="font-medium">{suggestion}</span>
             </li>
           ))}

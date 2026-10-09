@@ -14,9 +14,9 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-all duration-200 ${
+      className={`bg-white dark:bg-slate-900 border border-sky-100/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs transition-all duration-200 ${
         hoverable
-          ? 'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5'
+          ? 'hover:shadow-md hover:border-sky-200 dark:hover:border-slate-700 hover:-translate-y-0.5'
           : ''
       } ${className}`}
       {...props}
@@ -33,10 +33,10 @@ export const CardHeader: React.FC<{
   icon?: React.ReactNode;
   className?: string;
 }> = ({ title, subtitle, action, icon, className = '' }) => (
-  <div className={`flex items-start justify-between gap-4 pb-4 mb-4 border-b border-slate-100 dark:border-slate-800/80 ${className}`}>
+  <div className={`flex items-start justify-between gap-4 pb-4 mb-4 border-b border-sky-50 dark:border-slate-800/80 ${className}`}>
     <div className="flex items-center gap-3">
       {icon && (
-        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+        <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400 border border-sky-100 dark:border-sky-900/50">
           {icon}
         </div>
       )}

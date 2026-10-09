@@ -11,10 +11,8 @@ import {
   Copy,
   Check,
   CheckCircle2,
-  Lightbulb,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
+  ShieldCheck,
+  RotateCcw,
 } from 'lucide-react';
 import { TASK_TYPES } from '../data/mockPrompts';
 import type { PromptHistoryItem } from '../types';
@@ -23,54 +21,42 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { EmptyState } from '../components/ui/EmptyState';
 import { copyToClipboard } from '../utils/clipboard';
-import { useAuth } from '../context/AuthContext';
-import { getPromptHistory, deletePromptHistory } from '../services/database';
+import {
+  getHistory,
+  deleteHistoryItem,
+  clearHistory as clearAllLocalStorageHistory,
+} from '../services/localStorage';
 
 export const History: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   const [historyItems, setHistoryItems] = useState<PromptHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTaskType, setSelectedTaskType] = useState<string>('All');
   const [sortOption, setSortOption] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
+  
   const [viewingItem, setViewingItem] = useState<PromptHistoryItem | null>(null);
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
 
-  // Fetch real history on mount, on auth state changes, or on manual retry
-  const fetchHistory = useCallback(async () => {
-    if (authLoading) return;
-    if (!isAuthenticated) {
-      setIsLoading(false);
-      return;
-    }
-
+  // Fetch items from browser localStorage
+  const loadHistory = useCallback(() => {
     setIsLoading(true);
-    setError(null);
-
     try {
-      const { data, error: fetchError } = await getPromptHistory(user?.id);
-
-      if (fetchError) {
-        setError(fetchError);
-      } else {
-        setHistoryItems(data || []);
-      }
+      const items = getHistory();
+      setHistoryItems(items);
     } catch {
-      setError('Unable to load prompt history. Please try again.');
+      setHistoryItems([]);
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, authLoading, user?.id]);
+  }, []);
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    loadHistory();
+  }, [loadHistory]);
 
   // Filter & Sort
   const filteredAndSortedItems = useMemo(() => {
@@ -95,34 +81,25 @@ export const History: React.FC = () => {
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         }
         if (sortOption === 'highest') {
-          return b.score - a.score;
+          return (b.score || 0) - (a.score || 0);
         }
         if (sortOption === 'lowest') {
-          return a.score - b.score;
+          return (a.score || 0) - (b.score || 0);
         }
         return 0;
       });
   }, [historyItems, searchQuery, selectedTaskType, sortOption]);
 
-  const handleDelete = async (id: string) => {
-    if (isDeleting) return;
-    setIsDeleting(true);
+  const handleDeleteItem = (id: string) => {
+    const updated = deleteHistoryItem(id);
+    setHistoryItems(updated);
+    setDeleteConfirmationId(null);
+  };
 
-    try {
-      const { success, error: delError } = await deletePromptHistory(id);
-      if (success) {
-        setHistoryItems((prev) => prev.filter((item) => item.id !== id));
-        setDeleteConfirmationId(null);
-      } else {
-        setError(delError || 'Failed to delete prompt history item.');
-        setDeleteConfirmationId(null);
-      }
-    } catch {
-      setError('An unexpected error occurred while deleting.');
-      setDeleteConfirmationId(null);
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleClearAll = () => {
+    clearAllLocalStorageHistory();
+    setHistoryItems([]);
+    setShowClearConfirm(false);
   };
 
   const handleCopy = async (text: string) => {
@@ -148,49 +125,53 @@ export const History: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />
+            <span>Browser Local Storage (Private)</span>
+          </div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
             Prompt History
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Review past prompt analyses, scores, and revisions saved to your account.
+            History is stored strictly in your current browser session.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          {historyItems.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowClearConfirm(true)}
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            >
+              Clear History
+            </Button>
+          )}
           <Button
             variant="primary"
             size="sm"
             onClick={() => navigate('/improve')}
             rightIcon={<Sparkles className="w-4 h-4" />}
           >
-            Optimize New Prompt
+            Enhance New Prompt
           </Button>
         </div>
       </div>
 
-      {/* Error Banner with Retry */}
-      {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>{error}</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchHistory}
-            isLoading={isLoading}
-            disabled={isLoading}
-            className="self-end sm:self-auto border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40"
-            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-          >
-            Retry
-          </Button>
+      {/* Privacy Notice Banner */}
+      <div className="p-4 rounded-2xl bg-sky-50/60 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/40 flex items-start gap-3 text-xs text-sky-800 dark:text-sky-300">
+        <ShieldCheck className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold">Privacy Disclaimer:</p>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            Your saved prompt iterations are stored directly in your browser's local storage. Your history is never transmitted to shared database servers, preserving complete privacy across sessions.
+          </p>
         </div>
-      )}
+      </div>
 
       {/* Filter and Search Controls */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {/* Search */}
           <div className="relative sm:col-span-6">
@@ -200,7 +181,7 @@ export const History: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search history by prompt text..."
-              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
@@ -209,9 +190,9 @@ export const History: React.FC = () => {
             <select
               value={selectedTaskType}
               onChange={(e) => setSelectedTaskType(e.target.value)}
-              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
-              <option value="All">All Task Types</option>
+              <option value="All">All Categories</option>
               {TASK_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {type}
@@ -225,7 +206,7 @@ export const History: React.FC = () => {
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as any)}
-              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
               <option value="newest">Sort: Newest First</option>
               <option value="oldest">Sort: Oldest First</option>
@@ -237,7 +218,7 @@ export const History: React.FC = () => {
 
         <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 pt-1">
           <span>
-            Showing {filteredAndSortedItems.length} of {historyItems.length} prompts
+            Showing {filteredAndSortedItems.length} of {historyItems.length} stored prompts
           </span>
           {(searchQuery || selectedTaskType !== 'All') && (
             <button
@@ -245,33 +226,27 @@ export const History: React.FC = () => {
                 setSearchQuery('');
                 setSelectedTaskType('All');
               }}
-              className="text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="text-sky-600 dark:text-sky-400 hover:underline"
             >
-              Clear filters
+              Clear search filters
             </button>
           )}
         </div>
       </div>
 
-      {/* Loading State */}
-      {isLoading ? (
-        <div className="py-20 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-          <p className="text-sm text-slate-500 dark:text-slate-400">Loading prompt history...</p>
-        </div>
-      ) : filteredAndSortedItems.length > 0 ? (
-        /* History Items List */
+      {/* History Items List */}
+      {!isLoading && filteredAndSortedItems.length > 0 ? (
         <div className="space-y-4">
           {filteredAndSortedItems.map((item) => {
             const scoreColor = getScoreColor(item.score);
             return (
               <div
                 key={item.id}
-                className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-sky-300 dark:hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-slate-700">
                       {item.taskType}
                     </span>
                     <span
@@ -289,7 +264,7 @@ export const History: React.FC = () => {
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                       "{item.originalPrompt}"
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 font-mono">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 font-sans">
                       Improved: {item.improvedPrompt}
                     </p>
                   </div>
@@ -321,14 +296,14 @@ export const History: React.FC = () => {
       ) : (
         /* Empty State */
         <EmptyState
-          icon={<HistoryIcon className="w-8 h-8" />}
-          title={historyItems.length === 0 ? 'No prompts in history' : 'No prompts found'}
+          icon={<HistoryIcon className="w-8 h-8 text-sky-500" />}
+          title={historyItems.length === 0 ? 'No prompts saved yet' : 'No prompts match filters'}
           description={
             historyItems.length === 0
-              ? "You haven't saved any prompts yet. Head over to the improver to get started!"
-              : 'No prompts match your current search and filter criteria.'
+              ? 'Prompts you enhance in the improver will automatically save here in your browser.'
+              : 'Try clearing your search query or selecting a different category filter.'
           }
-          actionText={historyItems.length === 0 ? 'Improve a Prompt' : 'Reset Filters'}
+          actionText={historyItems.length === 0 ? 'Enhance a Prompt Now' : 'Reset Search Filters'}
           onAction={() => {
             if (historyItems.length === 0) {
               navigate('/improve');
@@ -340,63 +315,92 @@ export const History: React.FC = () => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Single Item Delete Modal */}
       {deleteConfirmationId && (
         <Modal
           isOpen={!!deleteConfirmationId}
-          onClose={() => !isDeleting && setDeleteConfirmationId(null)}
-          title="Delete this prompt?"
+          onClose={() => setDeleteConfirmationId(null)}
+          title="Delete Prompt Record?"
           maxWidth="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              This action will permanently remove this prompt from your account history.
+              Are you sure you want to delete this prompt from your local browser storage?
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setDeleteConfirmationId(null)}
-                disabled={isDeleting}
               >
                 Cancel
               </Button>
               <Button
                 variant="danger"
                 size="sm"
-                isLoading={isDeleting}
-                disabled={isDeleting}
-                onClick={() => handleDelete(deleteConfirmationId)}
+                onClick={() => handleDeleteItem(deleteConfirmationId)}
               >
-                Delete
+                Confirm Delete
               </Button>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* Detailed Modal Viewer */}
+      {/* Clear All Confirmation Modal */}
+      {showClearConfirm && (
+        <Modal
+          isOpen={showClearConfirm}
+          onClose={() => setShowClearConfirm(false)}
+          title="Clear Entire History?"
+          maxWidth="sm"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              This will permanently delete all stored prompt records from your current browser session.
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowClearConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={handleClearAll}
+              >
+                Clear All History
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Detailed Item Viewer Modal */}
       {viewingItem && (
         <Modal
           isOpen={!!viewingItem}
           onClose={() => setViewingItem(null)}
-          title="Prompt Details & Optimization"
+          title="Saved Prompt Optimization"
           maxWidth="xl"
         >
           <div className="space-y-6">
             {/* Meta header */}
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pb-3 border-b border-sky-50 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                <span className="font-semibold text-sky-600 dark:text-sky-400">
                   {viewingItem.taskType}
                 </span>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
                 <span
-                  className={`font-bold px-2 py-0.5 rounded-full ${
+                  className={`font-bold px-2.5 py-0.5 rounded-full ${
                     getScoreColor(viewingItem.score).badgeBg
                   }`}
                 >
-                  Score: {viewingItem.score} ({getScoreColor(viewingItem.score).tier})
+                  Score: {viewingItem.score}/100
                 </span>
               </div>
               <span className="text-slate-400">
@@ -417,8 +421,8 @@ export const History: React.FC = () => {
             {/* Improved Output */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-500" />
                   Improved Prompt
                 </span>
                 <button
@@ -429,12 +433,12 @@ export const History: React.FC = () => {
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-900/60 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
+              <div className="p-4 rounded-xl bg-sky-50/40 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
                 {viewingItem.improvedPrompt}
               </div>
             </div>
 
-            {/* Why It Was Improved (if available in JSONB) */}
+            {/* Why It Was Improved */}
             {viewingItem.whyBetter && viewingItem.whyBetter.length > 0 && (
               <div>
                 <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
@@ -455,26 +459,8 @@ export const History: React.FC = () => {
               </div>
             )}
 
-            {/* Suggestions (if available in JSONB) */}
-            {viewingItem.suggestions && viewingItem.suggestions.length > 0 && (
-              <div>
-                <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
-                  <Lightbulb className="w-3.5 h-3.5 text-indigo-500" />
-                  Suggestions
-                </span>
-                <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-                  {viewingItem.suggestions.map((sug, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
-                      <span>{sug}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
             {/* Modal actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-sky-50 dark:border-slate-800">
               <Button
                 variant="outline"
                 size="sm"

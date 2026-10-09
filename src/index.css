@@ -24,21 +24,21 @@
 
   /* Accessible focus rings */
   :focus-visible {
-    @apply outline-none ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-950;
+    @apply outline-none ring-2 ring-sky-500 ring-offset-2 dark:ring-offset-slate-950;
   }
 }
 
 @layer utilities {
   .ai-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600 dark:from-sky-400 dark:via-sky-300 dark:to-blue-400;
   }
 
   .ai-gradient-bg {
-    @apply bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600;
+    @apply bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600;
   }
 
   .ai-glass-card {
-    @apply bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-sm;
+    @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-sky-100 dark:border-slate-800 shadow-sm;
   }
 }
 

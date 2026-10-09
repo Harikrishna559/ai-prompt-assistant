@@ -2,17 +2,11 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home';
 import { PromptImprover } from './pages/PromptImprover';
 import { Templates } from './pages/Templates';
-import { Dashboard } from './pages/Dashboard';
 import { History } from './pages/History';
 import { About } from './pages/About';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
-import { ResetPassword } from './pages/ResetPassword';
-import { VerifyEmail } from './pages/VerifyEmail';
 
 // Component to scroll to top automatically on route changes
 const ScrollToTop: React.FC = () => {
@@ -27,49 +21,16 @@ const ScrollToTop: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 selection:bg-sky-500 selection:text-white">
       <ScrollToTop />
       <Navbar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route
-            path="/improve"
-            element={
-              <ProtectedRoute>
-                <PromptImprover />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/templates"
-            element={
-              <ProtectedRoute>
-                <Templates />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <ProtectedRoute>
-                <History />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/improve" element={<PromptImprover />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/history" element={<History />} />
           <Route path="/about" element={<About />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           {/* Catch-all fallback */}
           <Route path="*" element={<Home />} />
         </Routes>

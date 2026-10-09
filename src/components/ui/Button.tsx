@@ -31,13 +31,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm shadow-blue-500/20 focus:ring-blue-500 border border-transparent dark:focus:ring-offset-slate-900',
+      'bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white shadow-sm shadow-sky-500/25 focus:ring-sky-500 border border-transparent dark:focus:ring-offset-slate-900 font-semibold',
     secondary:
-      'bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 focus:ring-slate-400 border border-slate-200 dark:border-slate-700',
+      'bg-sky-50 hover:bg-sky-100 text-sky-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-sky-200 focus:ring-sky-400 border border-sky-100 dark:border-slate-700',
     outline:
-      'bg-transparent hover:bg-slate-100 text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/80 border border-slate-300 dark:border-slate-700 focus:ring-blue-500',
+      'bg-white hover:bg-sky-50/70 text-slate-700 dark:text-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-sky-200/80 dark:border-slate-700 focus:ring-sky-500',
     ghost:
-      'bg-transparent hover:bg-slate-100 text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 focus:ring-slate-400',
+      'bg-transparent hover:bg-sky-50/70 text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:ring-sky-400',
     danger:
       'bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 focus:ring-rose-500',
   };

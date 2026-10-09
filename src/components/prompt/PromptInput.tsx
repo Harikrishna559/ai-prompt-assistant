@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, RotateCcw, AlertCircle } from 'lucide-react';
+import { Sparkles, RotateCcw, AlertCircle, Wand2 } from 'lucide-react';
 import type { TaskType } from '../../types';
 import { TASK_TYPES } from '../../data/mockPrompts';
 import { Button } from '../ui/Button';
@@ -30,11 +30,11 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) {
-      setValidationError('Enter a prompt before improving it.');
+      setValidationError('Please enter a prompt to analyze and improve.');
       return;
     }
     if (prompt.length > maxChars) {
-      setValidationError('Your prompt exceeds the 5000 character limit.');
+      setValidationError('Your prompt exceeds the 5,000 character limit.');
       return;
     }
     setValidationError(null);
@@ -49,30 +49,31 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-sm transition-all">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs transition-all">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <label
             htmlFor="prompt-textarea"
-            className="block text-base font-semibold text-slate-900 dark:text-slate-100"
+            className="block text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2"
           >
-            Your Prompt
+            <Wand2 className="w-4 h-4 text-sky-500" />
+            Enter Your Raw Prompt
           </label>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Describe your task, question, or draft prompt below.
+            Describe your idea, task, or rough question below.
           </p>
         </div>
 
         {/* Task Type selector */}
         <div className="flex items-center gap-2">
-          <label htmlFor="task-type-select" className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Task Type:
+          <label htmlFor="task-type-select" className="text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
+            Task Category:
           </label>
           <select
             id="task-type-select"
             value={taskType}
             onChange={(e) => onTaskTypeChange(e.target.value as TaskType)}
-            className="text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors shadow-xs"
+            className="text-xs font-medium bg-sky-50/60 dark:bg-slate-800 border border-sky-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer transition-colors shadow-2xs"
           >
             {TASK_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -89,8 +90,8 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           rows={6}
           value={prompt}
           onChange={(e) => handleInputChange(e.target.value)}
-          placeholder="Describe what you want the AI to help you with..."
-          className="w-full rounded-xl bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 p-4 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition-all resize-y min-h-[150px] leading-relaxed"
+          placeholder="e.g. Write a python script to parse CSV files and generate a weekly summary report..."
+          className="w-full rounded-xl bg-slate-50/80 dark:bg-slate-950/70 border border-sky-100 dark:border-slate-800 p-4 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all resize-y min-h-[150px] leading-relaxed"
         />
 
         {/* Character Count & Clear */}
@@ -115,7 +116,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
                   onReset();
                   setValidationError(null);
                 }}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 transition-colors px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-sky-50 dark:hover:bg-slate-800"
               >
                 <RotateCcw className="w-3 h-3" />
                 Clear
@@ -134,17 +135,21 @@ export const PromptInput: React.FC<PromptInputProps> = ({
       )}
 
       {/* Action Bar */}
-      <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t border-sky-50 dark:border-slate-800/80">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Quick ideas:</span>
-          {['make a website', 'explain machine learning', 'write a pitch email'].map((sample) => (
+          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Try quick samples:</span>
+          {[
+            { label: 'Build REST API', val: 'Write a Node.js REST API with authentication and rate limiting' },
+            { label: 'Blog Outline', val: 'Create an engaging blog post outline about AI prompt engineering' },
+            { label: 'Data Analysis', val: 'Analyze customer churn data in Python using Pandas' },
+          ].map((sample) => (
             <button
-              key={sample}
+              key={sample.label}
               type="button"
-              onClick={() => handleInputChange(sample)}
-              className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-300 transition-colors border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800"
+              onClick={() => handleInputChange(sample.val)}
+              className="text-xs font-medium px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-950/80 transition-colors border border-sky-100 dark:border-sky-900/40"
             >
-              "{sample}"
+              "{sample.label}"
             </button>
           ))}
         </div>
@@ -155,9 +160,9 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           size="md"
           isLoading={isLoading}
           rightIcon={<Sparkles className="w-4 h-4" />}
-          className="w-full sm:w-auto shadow-md shadow-indigo-500/10 font-semibold"
+          className="w-full sm:w-auto shadow-md shadow-sky-500/10 font-semibold"
         >
-          Improve Prompt
+          Enhance Prompt Now
         </Button>
       </div>
     </form>

@@ -1,32 +1,98 @@
-# React + TypeScript + Vite
+# AI Prompt Improvement Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> **Turn Simple Ideas into Powerful AI Prompts.**
 
-Currently, two official plugins are available:
+A production-ready SaaS application for prompt engineering, auditing, and optimization. Powered by **NVIDIA NIM API** and **Meta Llama 3.3 70B Instruct**, designed with a modern Sky-Blue theme and 100% public access with browser local storage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live Website:** [https://ai-prompt-assistant-jet.vercel.app](https://ai-prompt-assistant-jet.vercel.app)
+- **GitHub Repository:** [https://github.com/Harikrishna559/ai-prompt-assistant](https://github.com/Harikrishna559/ai-prompt-assistant)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Key Features
 
-## Expanding the Oxlint configuration
+- **Public SaaS (Zero Registration Required):** Use all prompt improver features, templates, and history instantly without signing up or logging in.
+- **NVIDIA NIM API Engine:** High-performance prompt analysis using serverless Meta Llama 3.3 70B Instruct models with intelligent rule-based fallback protection.
+- **Objective Quality Scoring:** Instant 0–100 score across 4 key dimensions: Clarity, Context, Specificity, and Completeness.
+- **100% Private Browser History:** Saved prompt iterations remain strictly in your browser's `localStorage` — zero data synced to server databases.
+- **Curated Template Library:** Battle-tested prompt blueprints across Coding, Writing, Education, Career, Business, and Data Analysis.
+- **Premium Sky-Blue Design System:** Modern typography, subtle glassmorphism, responsive mobile layout, and dark mode support.
+- **SEO Optimized:** Full Open Graph metadata, canonical URL tags, `robots.txt`, and XML sitemap for search engines.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+---
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Technology Stack
+
+- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS (Sky-Blue design system), Lucide React icons
+- **Backend / Serverless:** Vercel Serverless Functions (`api/improve.ts`), Node.js HTTP
+- **AI Integration:** NVIDIA NIM Chat Completion API (`https://integrate.api.nvidia.com/v1/chat/completions`)
+- **Storage:** Client-side Browser LocalStorage Service (`src/services/localStorage.ts`)
+
+---
+
+## Environment Variables Configuration
+
+Set the following environment variables in your local `.env` or Vercel Dashboard project settings:
+
+```env
+# Server-Side Only (Never exposed to client bundle)
+NVIDIA_API_KEY=your_nvidia_api_key_here
+NVIDIA_MODEL=meta/llama-3.3-70b-instruct
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+> **Note:** If `NVIDIA_API_KEY` is not provided, the serverless handler automatically uses its built-in rule-based optimization fallback engine so visitors never experience error pages.
+
+---
+
+## Local Development Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Harikrishna559/ai-prompt-assistant.git
+   cd ai-prompt-assistant
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the local development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+---
+
+## Google Search Console Verification Guide
+
+To index and monitor `https://ai-prompt-assistant-jet.vercel.app` on Google Search:
+
+1. **Log in to Google Search Console:**
+   Go to [https://search.google.com/search-console](https://search.google.com/search-console).
+
+2. **Add Property:**
+   Select **URL prefix** and enter `https://ai-prompt-assistant-jet.vercel.app/`.
+
+3. **Copy Verification Meta Tag:**
+   Select the **HTML tag** verification method. Copy the generated tag:
+   ```html
+   <meta name="google-site-verification" content="YOUR_UNIQUE_VERIFICATION_KEY" />
+   ```
+
+4. **Update `index.html`:**
+   Open `index.html` and replace `GOOGLE_SEARCH_CONSOLE_VERIFICATION_KEY` with your actual verification key:
+   ```html
+   <meta name="google-site-verification" content="YOUR_UNIQUE_VERIFICATION_KEY" />
+   ```
+
+5. **Deploy & Verify:**
+   Commit, push to GitHub, and click **Verify** in Google Search Console.
+
+6. **Submit Sitemap:**
+   In Google Search Console, navigate to **Sitemaps** in the sidebar, enter `sitemap.xml` (full URL: `https://ai-prompt-assistant-jet.vercel.app/sitemap.xml`), and click **Submit**.

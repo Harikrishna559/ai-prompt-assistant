@@ -43,15 +43,15 @@ export const Templates: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Curated Pattern Library</span>
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-sky-500" />
+          <span>Pre-Engineered Pattern Library</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           Prompt Templates
         </h1>
         <p className="text-base text-slate-600 dark:text-slate-400">
-          Start with a proven structure and create better prompts faster.
+          Start with proven, battle-tested prompt blueprints for any domain.
         </p>
       </div>
 
@@ -64,8 +64,8 @@ export const Templates: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search templates by keyword, category, or goal..."
-            className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all"
+            placeholder="Search templates by keyword, category, or task..."
+            className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs transition-all"
           />
           {searchQuery && (
             <button
@@ -87,8 +87,8 @@ export const Templates: React.FC = () => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20'
-                    : 'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                    ? 'bg-sky-500 text-white shadow-xs'
+                    : 'bg-white dark:bg-slate-900 border border-sky-100/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-slate-800/60'
                 }`}
               >
                 {category}
@@ -112,8 +112,8 @@ export const Templates: React.FC = () => {
       ) : (
         <EmptyState
           title="No templates found"
-          description="Try another search or category."
-          actionText="Reset Filters"
+          description="Try modifying your search keywords or switching category filters."
+          actionText="Reset All Filters"
           onAction={() => {
             setSearchQuery('');
             setSelectedCategory('All');
