@@ -7,7 +7,7 @@ interface LoadingStateProps {
 }
 
 const STAGES = [
-  'Connecting to NVIDIA NIM API...',
+  'Connecting to Groq Cloud API...',
   'Evaluating clarity & context score...',
   'Analyzing specificity & completeness...',
   'Building expert role & structural framework...',
@@ -42,7 +42,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
         {message}
       </h3>
       <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-sm">
-        Applying Meta Llama 3.3 prompt engineering frameworks to generate structured recommendations.
+        Applying advanced AI prompt engineering frameworks to generate structured recommendations.
       </p>
 
       {/* Structured stages list */}

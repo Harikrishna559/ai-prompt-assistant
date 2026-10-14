@@ -2,7 +2,7 @@
 
 > **Turn Simple Ideas into Powerful AI Prompts.**
 
-A production-ready SaaS application for prompt engineering, auditing, and optimization. Powered by **NVIDIA NIM API** and **Meta Llama 3.3 70B Instruct**, designed with a modern Sky-Blue theme and 100% public access with browser local storage.
+A production-ready SaaS application for prompt engineering, auditing, and optimization. Powered by **Groq Cloud API** and **Meta Llama 3.3 70B Versatile**, designed with a modern Sky-Blue theme and 100% public access with browser local storage.
 
 - **Live Website:** [https://ai-prompt-assistant-jet.vercel.app](https://ai-prompt-assistant-jet.vercel.app)
 - **GitHub Repository:** [https://github.com/Harikrishna559/ai-prompt-assistant](https://github.com/Harikrishna559/ai-prompt-assistant)
@@ -12,7 +12,7 @@ A production-ready SaaS application for prompt engineering, auditing, and optimi
 ## Key Features
 
 - **Public SaaS (Zero Registration Required):** Use all prompt improver features, templates, and history instantly without signing up or logging in.
-- **NVIDIA NIM API Engine:** High-performance prompt analysis using serverless Meta Llama 3.3 70B Instruct models with intelligent rule-based fallback protection.
+- **Groq Cloud API Engine:** High-performance prompt analysis using Groq LPUs and Meta Llama 3.3 70B Versatile with intelligent rule-based fallback protection.
 - **Objective Quality Scoring:** Instant 0–100 score across 4 key dimensions: Clarity, Context, Specificity, and Completeness.
 - **100% Private Browser History:** Saved prompt iterations remain strictly in your browser's `localStorage` — zero data synced to server databases.
 - **Curated Template Library:** Battle-tested prompt blueprints across Coding, Writing, Education, Career, Business, and Data Analysis.
@@ -25,7 +25,7 @@ A production-ready SaaS application for prompt engineering, auditing, and optimi
 
 - **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS (Sky-Blue design system), Lucide React icons
 - **Backend / Serverless:** Vercel Serverless Functions (`api/improve.ts`), Node.js HTTP
-- **AI Integration:** NVIDIA NIM Chat Completion API (`https://integrate.api.nvidia.com/v1/chat/completions`)
+- **AI Integration:** Groq Cloud Chat Completion API (`https://api.groq.com/openai/v1/chat/completions`)
 - **Storage:** Client-side Browser LocalStorage Service (`src/services/localStorage.ts`)
 
 ---
@@ -36,11 +36,11 @@ Set the following environment variables in your local `.env` or Vercel Dashboard
 
 ```env
 # Server-Side Only (Never exposed to client bundle)
-NVIDIA_API_KEY=your_nvidia_api_key_here
-NVIDIA_MODEL=meta/llama-3.3-70b-instruct
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-> **Note:** If `NVIDIA_API_KEY` is not provided, the serverless handler automatically uses its built-in rule-based optimization fallback engine so visitors never experience error pages.
+> **Note:** If `GROQ_API_KEY` is not provided, the serverless handler automatically uses its built-in rule-based optimization fallback engine so visitors never experience error pages.
 
 ---
 

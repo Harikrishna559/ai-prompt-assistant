@@ -147,7 +147,7 @@ export const About: React.FC = () => {
             { name: 'TypeScript', badge: 'Strict Typing' },
             { name: 'Vite 8', badge: 'Build Tool' },
             { name: 'Tailwind CSS', badge: 'Sky-Blue Theme' },
-            { name: 'NVIDIA NIM API', badge: 'Llama 3.3 70B' },
+            { name: 'Groq Cloud API', badge: 'GPT-OSS 120B' },
             { name: 'Browser Storage', badge: '100% Local History' },
             { name: 'Lucide Icons', badge: 'UI Icons' },
             { name: 'Vercel', badge: 'Serverless Platform' },
@@ -183,8 +183,8 @@ export const About: React.FC = () => {
           {[
             {
               phase: 'AI Provider',
-              title: 'NVIDIA NIM Integration',
-              desc: 'High-speed OpenAI-compatible API endpoint executing Meta Llama 3.3 70B Instruct with rule-based fallback fallback protection.',
+              title: 'Groq Cloud Integration',
+              desc: 'High-speed OpenAI-compatible API endpoint executing on custom Groq LPUs with zero-failure fallback protection.',
               icon: <Sparkles className="w-4 h-4 text-sky-500" />,
               badgeClass: 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
             },
@@ -260,7 +260,7 @@ export const About: React.FC = () => {
             Public SaaS Platform
           </p>
           <p>
-            AI Prompt Improvement Assistant is deployed at <a href="https://ai-prompt-assistant-jet.vercel.app" target="_blank" rel="noopener noreferrer" className="underline font-medium">ai-prompt-assistant-jet.vercel.app</a>. It provides high-performance prompt engineering tools powered by NVIDIA NIM & Meta Llama 3.3.
+            AI Prompt Improvement Assistant is deployed at <a href="https://ai-prompt-assistant-jet.vercel.app" target="_blank" rel="noopener noreferrer" className="underline font-medium">ai-prompt-assistant-jet.vercel.app</a>. It provides high-performance prompt engineering tools powered by Groq Cloud API.
           </p>
         </div>
       </div>

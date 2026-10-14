@@ -18,14 +18,14 @@ export const Footer: React.FC = () => {
               </span>
             </Link>
             <p className="text-sm text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed">
-              "Turn Simple Ideas into Powerful AI Prompts." Production-grade prompt engineering SaaS powered by NVIDIA NIM & Meta Llama 3.3.
+              "Turn Simple Ideas into Powerful AI Prompts." Production-grade prompt engineering SaaS powered by Groq Cloud API.
             </p>
             <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
               <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-900 border border-sky-100 dark:border-slate-800">
                 <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" /> 100% Private (Local Browser Storage)
               </span>
               <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-900 border border-sky-100 dark:border-slate-800">
-                <Cpu className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" /> Powered by NVIDIA NIM API
+                <Cpu className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" /> Powered by Groq Cloud API
               </span>
             </div>
           </div>
@@ -89,7 +89,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <span className="text-slate-400 dark:text-slate-500 text-xs">
-                  Model: Meta Llama 3.3 70B Instruct
+                  Model: Groq Cloud (openai/gpt-oss-120b)
                 </span>
               </li>
               <li>

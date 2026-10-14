@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
         <div className="text-center max-w-4xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-semibold text-sky-700 dark:text-sky-300">
             <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-            <span>NVIDIA NIM & Meta Llama 3.3 Powered</span>
+            <span>Powered by Groq Cloud LPUs</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.15]">
@@ -123,7 +123,7 @@ export const Home: React.FC = () => {
                 <span className="w-3 h-3 rounded-full bg-sky-400/80" />
                 <span className="w-3 h-3 rounded-full bg-blue-400/80" />
                 <span className="w-3 h-3 rounded-full bg-emerald-400/80" />
-                <span className="ml-2 text-xs font-mono text-slate-400">nvidia_prompt_optimizer.ts</span>
+                <span className="ml-2 text-xs font-mono text-slate-400">groq_prompt_optimizer.ts</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-sky-600 dark:text-sky-400 font-semibold">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -153,7 +153,7 @@ export const Home: React.FC = () => {
                 <div className="h-px bg-sky-100 dark:bg-slate-800 flex-1" />
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 text-xs font-semibold text-sky-700 dark:text-sky-300 shadow-xs animate-pulse">
                   <ArrowDown className="w-3.5 h-3.5" />
-                  <span>Meta Llama 3.3 Prompt Engineering Framework</span>
+                  <span>Advanced AI Prompt Engineering Framework</span>
                 </div>
                 <div className="h-px bg-sky-100 dark:bg-slate-800 flex-1" />
               </div>
@@ -251,8 +251,8 @@ export const Home: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             {
-              title: 'NVIDIA NIM Intelligence',
-              desc: 'Powered by high-speed serverless Meta Llama 3.3 models for deep instruction analysis.',
+              title: 'Groq Cloud Intelligence',
+              desc: 'Powered by high-speed Groq LPUs for deep instruction analysis and prompt enhancement.',
               icon: <Wand2 className="w-6 h-6 text-sky-500" />,
             },
             {

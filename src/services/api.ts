@@ -6,7 +6,7 @@ import type {
 /**
  * Analyze an input prompt and generate improvement suggestions
  *
- * Calls POST /api/improve and returns the live Gemini response.
+ * Calls POST /api/improve and returns the optimized prompt analysis.
  */
 export async function analyzePrompt(
   prompt: string,

@@ -29,8 +29,11 @@ export default defineConfig(({ mode }) => {
   // NOTE: Non-VITE_ variables loaded here are accessible ONLY to the server/node process
   // and are NEVER bundled or exposed to the browser/client.
   const env = loadEnv(mode, process.cwd(), '');
-  if (env.GEMINI_API_KEY) {
-    process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
+  if (env.GROQ_API_KEY) {
+    process.env.GROQ_API_KEY = env.GROQ_API_KEY;
+  }
+  if (env.GROQ_MODEL) {
+    process.env.GROQ_MODEL = env.GROQ_MODEL;
   }
 
   return {

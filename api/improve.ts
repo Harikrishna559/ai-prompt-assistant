@@ -80,7 +80,8 @@ async function parseBody(req: IncomingMessage & { body?: unknown }): Promise<Imp
 }
 
 /**
- * Intelligent rule-based fallback generator when NVIDIA API key is unavailable or rate limited.
+ * Intelligent rule-based fallback generator when Groq API key is unavailable,
+ * rate limited, or times out.
  */
 function generateFallbackAnalysis(prompt: string, taskType: string, variation: number = 0) {
   const trimmed = prompt.trim();
@@ -90,11 +91,11 @@ function generateFallbackAnalysis(prompt: string, taskType: string, variation: n
   const hasPersona = /act as|you are|as a|role/i.test(trimmed);
 
   // Compute realistic scores
-  let clarity = Math.min(95, Math.max(50, 60 + (wordCount > 10 ? 20 : 5) + (hasQuestion ? 10 : 0)));
-  let context = Math.min(95, Math.max(45, 50 + (hasPersona ? 30 : 0) + (wordCount > 25 ? 15 : 0)));
-  let specificity = Math.min(95, Math.max(40, 45 + (wordCount > 30 ? 25 : 5) + (hasFormat ? 15 : 0)));
-  let completeness = Math.min(95, Math.max(40, 50 + (hasFormat ? 25 : 0) + (wordCount > 40 ? 20 : 0)));
-  let overall = Math.round((clarity + context + specificity + completeness) / 4);
+  const clarity = Math.min(95, Math.max(50, 60 + (wordCount > 10 ? 20 : 5) + (hasQuestion ? 10 : 0)));
+  const context = Math.min(95, Math.max(45, 50 + (hasPersona ? 30 : 0) + (wordCount > 25 ? 15 : 0)));
+  const specificity = Math.min(95, Math.max(40, 45 + (wordCount > 30 ? 25 : 5) + (hasFormat ? 15 : 0)));
+  const completeness = Math.min(95, Math.max(40, 50 + (hasFormat ? 25 : 0) + (wordCount > 40 ? 20 : 0)));
+  const overall = Math.round((clarity + context + specificity + completeness) / 4);
 
   const problems: string[] = [];
   if (!hasPersona) problems.push('Missing expert persona framing (e.g., "Act as a Senior Lead")');
@@ -164,12 +165,12 @@ Focus heavily on edge-case stress testing, risk mitigation, and a step-by-step c
       'Explicitly state desired output length or line count',
     ],
     createdAt: new Date().toISOString(),
-    source: 'nvidia-fallback-engine',
+    source: 'groq-fallback-engine',
   };
 }
 
 /**
- * Server-side NVIDIA NIM API Handler
+ * Server-side Groq Cloud API Handler
  * Endpoint: POST /api/improve
  */
 export default async function handler(
@@ -178,19 +179,19 @@ export default async function handler(
 ) {
   // GET endpoint status check
   if (req.method === 'GET') {
-    const rawKey = process.env.NVIDIA_API_KEY?.trim();
-    const hasKey = Boolean(rawKey && rawKey.length > 0 && !rawKey.includes('your_nvidia_api_key'));
-    const modelName = process.env.NVIDIA_MODEL?.trim() || 'meta/llama-3.3-70b-instruct';
+    const rawKey = process.env.GROQ_API_KEY?.trim();
+    const hasKey = Boolean(rawKey && rawKey.length > 0 && !rawKey.includes('your_groq_api_key'));
+    const modelName = process.env.GROQ_MODEL?.trim() || 'openai/gpt-oss-120b';
     return sendJson(res, 200, {
       status: 'ok',
       endpoint: '/api/improve',
       method: 'POST',
-      provider: 'NVIDIA NIM API',
+      provider: 'Groq Cloud API',
       model: modelName,
       apiKeyConfigured: hasKey,
       message: hasKey
-        ? 'NVIDIA NIM API integration active.'
-        : 'NVIDIA NIM API key pending. Smart fallback engine active for public visitors.',
+        ? 'Groq Cloud API integration active.'
+        : 'Groq Cloud API key pending. Smart fallback engine active for public visitors.',
     });
   }
 
@@ -226,20 +227,20 @@ export default async function handler(
       });
     }
 
-    const apiKey = process.env.NVIDIA_API_KEY?.trim();
-    const model = process.env.NVIDIA_MODEL?.trim() || 'meta/llama-3.3-70b-instruct';
+    const apiKey = process.env.GROQ_API_KEY?.trim();
+    const model = process.env.GROQ_MODEL?.trim() || 'openai/gpt-oss-120b';
 
     const isApiKeyConfigured = Boolean(
-      apiKey && apiKey.length > 0 && !apiKey.includes('your_nvidia_api_key')
+      apiKey && apiKey.length > 0 && !apiKey.includes('your_groq_api_key')
     );
 
-    // If NVIDIA API key is not configured, return smart fallback instantly
+    // If Groq API key is not configured, return smart fallback instantly
     if (!isApiKeyConfigured) {
       const fallback = generateFallbackAnalysis(prompt, taskType, variation);
       return sendJson(res, 200, fallback);
     }
 
-    // Call NVIDIA NIM OpenAI-compatible chat completion endpoint
+    // Call Groq Cloud OpenAI-compatible chat completion endpoint
     const systemPrompt = `You are an elite AI prompt engineer and instruction optimization expert.
 Your mission is to analyze the user's input prompt for the task category "${taskType}" and transform it into a high-performance, production-ready AI prompt.
 
@@ -271,7 +272,7 @@ You MUST return ONLY a JSON object matching this exact schema:
     const userMessage = `Analyze and improve this ${taskType} prompt:\n\n"""\n${prompt.trim()}\n"""`;
 
     try {
-      const nvidiaRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -289,31 +290,34 @@ You MUST return ONLY a JSON object matching this exact schema:
           max_tokens: 2048,
           response_format: { type: 'json_object' },
         }),
+        signal: AbortSignal.timeout(15000), // 15-second request timeout
       });
 
-      if (!nvidiaRes.ok) {
-        const errorText = await nvidiaRes.text();
-        console.warn(`[NVIDIA API Error ${nvidiaRes.status}]:`, errorText.slice(0, 300));
+      if (!groqRes.ok) {
+        const errorText = await groqRes.text().catch(() => '');
+        console.warn(`[Groq API Upstream Status ${groqRes.status}]: Using fallback engine. Detail: ${errorText.slice(0, 150)}`);
 
         // If rate-limited or quota exceeded upstream, use smart fallback so user is never blocked
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
         return sendJson(res, 200, fallback);
       }
 
-      const nvidiaData = (await nvidiaRes.json()) as any;
-      const content = nvidiaData?.choices?.[0]?.message?.content;
+      const groqData = (await groqRes.json()) as any;
+      const content = groqData?.choices?.[0]?.message?.content;
 
       if (!content) {
+        console.warn('[Groq API Response]: Empty completion content, using fallback engine.');
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
         return sendJson(res, 200, fallback);
       }
 
-      // Parse JSON from NVIDIA output
+      // Parse JSON from Groq output
       let parsed: any;
       try {
         const cleaned = content.replace(/```json\n?|\n?```/g, '').trim();
         parsed = JSON.parse(cleaned);
       } catch {
+        console.warn('[Groq API Response]: Failed to parse JSON, using fallback engine.');
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
         return sendJson(res, 200, fallback);
       }
@@ -340,12 +344,16 @@ You MUST return ONLY a JSON object matching this exact schema:
           ? parsed.suggestions
           : ['Specify target audience', 'Provide example outputs'],
         createdAt: new Date().toISOString(),
-        source: 'nvidia-nim-api',
+        source: 'groq-api',
       };
 
       return sendJson(res, 200, structuredResponse);
-    } catch (nvidiaErr: any) {
-      console.warn('[NVIDIA Request Failed - Using Fallback Engine]:', nvidiaErr?.message || nvidiaErr);
+    } catch (groqErr: any) {
+      const isTimeout =
+        groqErr?.name === 'TimeoutError' ||
+        groqErr?.name === 'AbortError' ||
+        groqErr?.message?.includes('timeout');
+      console.warn(`[Groq Request Failed - ${isTimeout ? 'Timeout (15s)' : 'Network Error'}]: Using fallback engine.`);
       const fallback = generateFallbackAnalysis(prompt, taskType, variation);
       return sendJson(res, 200, fallback);
     }
