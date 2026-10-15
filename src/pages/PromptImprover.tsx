@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Sparkles, AlertCircle, Layers, CheckCircle2, Wand2 } from 'lucide-react';
-import type { PromptAnalysis, TaskType } from '../types';
+import type { PromptAnalysis, TaskType, UserCredits } from '../types';
 import { analyzePrompt } from '../services/api';
 import { saveHistoryItem } from '../services/localStorage';
+import { getClientCredits } from '../services/credits';
+import { CreditsCard } from '../components/prompt/CreditsCard';
 import { PromptInput } from '../components/prompt/PromptInput';
 import { ScoreCard } from '../components/prompt/ScoreCard';
 import { AnalysisCard } from '../components/prompt/AnalysisCard';
@@ -23,6 +25,7 @@ export const PromptImprover: React.FC = () => {
   const [isRegenerating, setIsRegenerating] = useState<boolean>(false);
   const [analysis, setAnalysis] = useState<PromptAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [credits, setCredits] = useState<UserCredits>(getClientCredits());
 
   const [variation, setVariation] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -40,9 +43,16 @@ export const PromptImprover: React.FC = () => {
     if (location.state?.taskType) {
       setTaskType(location.state.taskType);
     }
+    // Refresh credits on mount / navigation
+    setCredits(getClientCredits());
   }, [location.state]);
 
   const handleImprove = async () => {
+    if (credits.remaining <= 0) {
+      setError('Daily free credit allowance reached (1,000/1,000 credits). Your allowance will reset at midnight in your local timezone.');
+      return;
+    }
+
     if (!prompt.trim()) {
       setError('Please enter a prompt to analyze and improve.');
       return;
@@ -57,14 +67,25 @@ export const PromptImprover: React.FC = () => {
       setVariation(0);
       const result = await analyzePrompt(prompt, taskType, 0);
       setAnalysis(result);
+      if (result.credits) {
+        setCredits(result.credits);
+      } else {
+        setCredits(getClientCredits());
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to analyze prompt. Please try again.');
+      setCredits(getClientCredits());
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRegenerate = async () => {
+    if (credits.remaining <= 0) {
+      setError('Daily free credit allowance reached (1,000/1,000 credits). Your allowance will reset at midnight in your local timezone.');
+      return;
+    }
+
     if (!prompt.trim()) return;
     setIsRegenerating(true);
     setSaveMessage(null);
@@ -75,8 +96,14 @@ export const PromptImprover: React.FC = () => {
       setVariation(nextVar);
       const result = await analyzePrompt(prompt, taskType, nextVar);
       setAnalysis(result);
+      if (result.credits) {
+        setCredits(result.credits);
+      } else {
+        setCredits(getClientCredits());
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to regenerate prompt. Please try again.');
+      setCredits(getClientCredits());
     } finally {
       setIsRegenerating(false);
     }
@@ -185,6 +212,9 @@ export const PromptImprover: React.FC = () => {
         </div>
       )}
 
+      {/* Daily Free Credits Monitor */}
+      <CreditsCard credits={credits} />
+
       {/* Input Section */}
       <PromptInput
         prompt={prompt}
@@ -197,6 +227,7 @@ export const PromptImprover: React.FC = () => {
         onSubmit={handleImprove}
         onReset={handleReset}
         isLoading={isLoading}
+        isCreditExhausted={credits.remaining <= 0}
       />
 
       {/* Loading Skeleton during Processing */}

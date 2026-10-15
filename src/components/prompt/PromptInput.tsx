@@ -12,6 +12,7 @@ interface PromptInputProps {
   onSubmit: () => void;
   onReset?: () => void;
   isLoading?: boolean;
+  isCreditExhausted?: boolean;
 }
 
 export const PromptInput: React.FC<PromptInputProps> = ({
@@ -22,6 +23,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   onSubmit,
   onReset,
   isLoading = false,
+  isCreditExhausted = false,
 }) => {
   const maxChars = 5000;
   const charCount = prompt.length;
@@ -29,6 +31,10 @@ export const PromptInput: React.FC<PromptInputProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isCreditExhausted) {
+      setValidationError('Daily free credit allowance reached (1,000/1,000 credits). Allowance resets at midnight.');
+      return;
+    }
     if (!prompt.trim()) {
       setValidationError('Please enter a prompt to analyze and improve.');
       return;
@@ -156,13 +162,14 @@ export const PromptInput: React.FC<PromptInputProps> = ({
 
         <Button
           type="submit"
-          variant="primary"
+          variant={isCreditExhausted ? 'secondary' : 'primary'}
           size="md"
           isLoading={isLoading}
+          disabled={isCreditExhausted}
           rightIcon={<Sparkles className="w-4 h-4" />}
           className="w-full sm:w-auto font-medium"
         >
-          Enhance Prompt Now
+          {isCreditExhausted ? 'Daily Credits Exhausted' : 'Enhance Prompt Now'}
         </Button>
       </div>
     </form>

@@ -25,6 +25,13 @@ export interface PromptProblem {
   type?: 'warning' | 'info';
 }
 
+export interface UserCredits {
+  allowance: number; // 1000
+  used: number;
+  remaining: number;
+  resetAt?: string;
+}
+
 export interface PromptAnalysis {
   id: string;
   originalPrompt: string;
@@ -35,6 +42,8 @@ export interface PromptAnalysis {
   whyBetter: string[];
   suggestions: string[];
   createdAt: string;
+  source?: string;
+  credits?: UserCredits;
 }
 
 export interface PromptTemplate {

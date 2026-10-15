@@ -6,12 +6,18 @@ interface ImproveRequestBody {
   variation?: number;
 }
 
-// In-memory rate limiting map (IP -> { count, resetTime })
+// Daily free credit allowance (1,000 credits per user per day)
+const DAILY_CREDIT_ALLOWANCE = 1000;
+
+// In-memory credit tracking map: userKey -> { date: string, used: number }
+const userDailyCredits = new Map<string, { date: string; used: number }>();
+
+// In-memory anti-abuse burst rate limiting map (IP -> { count, resetTime })
 const ipRateLimits = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 15;
+const MAX_REQUESTS_PER_WINDOW = 30; // 30 req/min burst ceiling
 
-function checkRateLimit(ip: string): boolean {
+function checkBurstRateLimit(ip: string): boolean {
   const now = Date.now();
   const record = ipRateLimits.get(ip);
 
@@ -34,6 +40,83 @@ function getClientIp(req: IncomingMessage): string {
     return forwarded.split(',')[0].trim();
   }
   return req.socket.remoteAddress || '127.0.0.1';
+}
+
+function getUserDate(req: IncomingMessage): string {
+  const clientDate = req.headers['x-client-date'];
+  if (typeof clientDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(clientDate.trim())) {
+    return clientDate.trim();
+  }
+  const now = new Date();
+  return now.toISOString().slice(0, 10);
+}
+
+function getUserIdentifier(req: IncomingMessage): string {
+  const clientIp = getClientIp(req);
+  const clientId = req.headers['x-client-id'];
+  if (typeof clientId === 'string' && clientId.trim().length > 0) {
+    return `${clientIp}:${clientId.trim().slice(0, 64)}`;
+  }
+  return clientIp;
+}
+
+/**
+ * Retrieves current credit status for user, handling midnight reset
+ * and synchronizing client usage across serverless instances.
+ */
+function getUserCredits(req: IncomingMessage) {
+  const userKey = getUserIdentifier(req);
+  const userDate = getUserDate(req);
+  const record = userDailyCredits.get(userKey);
+
+  // Client-reported usage from localStorage to synchronize across serverless cold starts
+  let clientUsed = 0;
+  const headerUsed = req.headers['x-client-used'];
+  if (typeof headerUsed === 'string') {
+    const parsed = parseInt(headerUsed, 10);
+    if (!isNaN(parsed) && parsed >= 0 && parsed <= 50000) {
+      clientUsed = parsed;
+    }
+  }
+
+  if (!record || record.date !== userDate) {
+    // Midnight reset: initialize new daily record for userDate
+    const initialUsed = Math.min(clientUsed, DAILY_CREDIT_ALLOWANCE);
+    const newRecord = { date: userDate, used: initialUsed };
+    userDailyCredits.set(userKey, newRecord);
+    return {
+      userKey,
+      userDate,
+      allowance: DAILY_CREDIT_ALLOWANCE,
+      used: initialUsed,
+      remaining: Math.max(0, DAILY_CREDIT_ALLOWANCE - initialUsed),
+    };
+  }
+
+  // Take the highest confirmed count between server record and client state
+  const effectiveUsed = Math.max(record.used, clientUsed);
+  record.used = effectiveUsed;
+
+  return {
+    userKey,
+    userDate,
+    allowance: DAILY_CREDIT_ALLOWANCE,
+    used: effectiveUsed,
+    remaining: Math.max(0, DAILY_CREDIT_ALLOWANCE - effectiveUsed),
+  };
+}
+
+/**
+ * Deducts exactly 1 credit upon confirmed successful Groq API completion.
+ */
+function deductCredit(userKey: string, userDate: string, currentUsed: number) {
+  const newUsed = currentUsed + 1;
+  userDailyCredits.set(userKey, { date: userDate, used: newUsed });
+  return {
+    allowance: DAILY_CREDIT_ALLOWANCE,
+    used: newUsed,
+    remaining: Math.max(0, DAILY_CREDIT_ALLOWANCE - newUsed),
+  };
 }
 
 // Helper to safely send JSON response
@@ -75,7 +158,9 @@ async function parseBody(req: IncomingMessage & { body?: unknown }): Promise<Imp
         resolve({});
       }
     });
-    req.on('error', () => resolve({}));
+    req.on('error', () => {
+      resolve({});
+    });
   });
 }
 
@@ -140,8 +225,21 @@ KEY REQUIREMENTS:
 Focus heavily on edge-case stress testing, risk mitigation, and a step-by-step checklist execution model.`;
   }
 
+  const whyBetter = [
+    `Instantly establishes an authoritative ${role} persona`,
+    'Structures output expectations with clear section boundaries',
+    'Eliminates ambiguity by enforcing concrete, actionable requirements',
+    'Directs the LLM to format response with professional Markdown headings',
+  ];
+
+  const suggestions = [
+    'Define target user skill level to tailor output complexity',
+    'Include negative constraints (e.g., "do not use deprecated APIs")',
+    'Specify length bounds (e.g., "within 400 words" or "provide top 3")',
+  ];
+
   return {
-    id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    id: `fallback-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     originalPrompt: trimmed,
     taskType,
     score: {
@@ -153,59 +251,69 @@ Focus heavily on edge-case stress testing, risk mitigation, and a step-by-step c
     },
     problems,
     improvedPrompt,
-    whyBetter: [
-      `Establishes explicit expert role persona (${role})`,
-      'Adds clear structural constraints and markdown formatting guidelines',
-      'Prevents ambiguous or superficial AI responses by demanding concrete depth',
-      'Provides clear execution bounds and quality benchmarks',
-    ],
-    suggestions: [
-      'Specify target audience experience level for tailored answers',
-      'Include 1-2 positive or negative output examples',
-      'Explicitly state desired output length or line count',
-    ],
+    whyBetter,
+    suggestions,
     createdAt: new Date().toISOString(),
-    source: 'groq-fallback-engine',
+    source: 'rule-based-fallback',
   };
 }
 
-/**
- * Server-side Groq Cloud API Handler
- * Endpoint: POST /api/improve
- */
 export default async function handler(
-  req: IncomingMessage & { body?: unknown },
+  req: IncomingMessage & { method?: string; body?: unknown },
   res: ServerResponse & { json?: (data: unknown) => void; status?: (code: number) => any }
 ) {
-  // GET endpoint status check
+  // CORS Headers for public tool access
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Client-Id, X-Client-Date, X-Client-Used, X-Client-Timezone');
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
+
+  // Health check & Documentation endpoint
   if (req.method === 'GET') {
-    const rawKey = process.env.GROQ_API_KEY?.trim();
-    const hasKey = Boolean(rawKey && rawKey.length > 0 && !rawKey.includes('your_groq_api_key'));
-    const modelName = process.env.GROQ_MODEL?.trim() || 'openai/gpt-oss-120b';
+    const userCredits = getUserCredits(req);
     return sendJson(res, 200, {
       status: 'ok',
       endpoint: '/api/improve',
       method: 'POST',
       provider: 'Groq Cloud API',
-      model: modelName,
-      apiKeyConfigured: hasKey,
-      message: hasKey
-        ? 'Groq Cloud API integration active.'
-        : 'Groq Cloud API key pending. Smart fallback engine active for public visitors.',
+      model: 'openai/gpt-oss-120b',
+      apiKeyConfigured: Boolean(process.env.GROQ_API_KEY?.trim()),
+      dailyCreditAllowance: DAILY_CREDIT_ALLOWANCE,
+      credits: userCredits,
+      message: 'Groq Cloud API integration active. 1,000 daily free credits provided per user.',
     });
   }
 
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'GET, POST');
     return sendJson(res, 405, { error: 'Method Not Allowed. Use POST.' });
   }
 
-  // Rate Limiting Check
+  // 1. Burst Rate Limiting Check (DDoS / automated rapid spam protection)
   const clientIp = getClientIp(req);
-  if (!checkRateLimit(clientIp)) {
+  if (!checkBurstRateLimit(clientIp)) {
     return sendJson(res, 429, {
       error: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many requests. Please wait a minute before analyzing another prompt.',
+      message: 'Request burst ceiling reached. Please wait a minute before analyzing another prompt.',
+    });
+  }
+
+  // 2. Server-Side Daily Credit Limit Enforcement (1,000 credits/day per user)
+  const userCredits = getUserCredits(req);
+  if (userCredits.used >= DAILY_CREDIT_ALLOWANCE) {
+    return sendJson(res, 429, {
+      error: 'CREDITS_EXHAUSTED',
+      message: 'Daily free credit allowance reached (1,000/1,000 credits used). Your allowance resets at midnight in your local timezone.',
+      credits: {
+        allowance: DAILY_CREDIT_ALLOWANCE,
+        used: DAILY_CREDIT_ALLOWANCE,
+        remaining: 0,
+        resetAt: 'midnight',
+      },
     });
   }
 
@@ -213,6 +321,7 @@ export default async function handler(
     const body = await parseBody(req);
     const { prompt, taskType = 'General', variation = 0 } = body;
 
+    // Validation checks - 0 credits deducted on failure
     if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
       return sendJson(res, 400, {
         error: 'INVALID_REQUEST',
@@ -234,10 +343,13 @@ export default async function handler(
       apiKey && apiKey.length > 0 && !apiKey.includes('your_groq_api_key')
     );
 
-    // If Groq API key is not configured, return smart fallback instantly
+    // If Groq API key is not configured, return smart fallback without deducting credits
     if (!isApiKeyConfigured) {
       const fallback = generateFallbackAnalysis(prompt, taskType, variation);
-      return sendJson(res, 200, fallback);
+      return sendJson(res, 200, {
+        ...fallback,
+        credits: userCredits,
+      });
     }
 
     // Call Groq Cloud OpenAI-compatible chat completion endpoint
@@ -263,21 +375,20 @@ You MUST return ONLY a JSON object matching this exact schema:
     "specificity": number (0-100),
     "completeness": number (0-100)
   },
-  "problems": ["problem 1", "problem 2"],
-  "improvedPrompt": "complete rewritten prompt",
-  "whyBetter": ["reason 1", "reason 2"],
-  "suggestions": ["tip 1", "tip 2"]
+  "problems": ["string", "string"],
+  "improvedPrompt": "string (the complete production-ready optimized prompt)",
+  "whyBetter": ["string", "string"],
+  "suggestions": ["string", "string"]
 }`;
 
-    const userMessage = `Analyze and improve this ${taskType} prompt:\n\n"""\n${prompt.trim()}\n"""`;
+    const userMessage = `Task Category: ${taskType}\nOriginal Input Prompt:\n${prompt.trim()}`;
 
     try {
       const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model,
@@ -285,8 +396,7 @@ You MUST return ONLY a JSON object matching this exact schema:
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage },
           ],
-          temperature: variation > 0 ? 0.8 : 0.6,
-          top_p: 0.9,
+          temperature: variation > 0 ? 0.7 : 0.4,
           max_tokens: 2048,
           response_format: { type: 'json_object' },
         }),
@@ -297,9 +407,12 @@ You MUST return ONLY a JSON object matching this exact schema:
         const errorText = await groqRes.text().catch(() => '');
         console.warn(`[Groq API Upstream Status ${groqRes.status}]: Using fallback engine. Detail: ${errorText.slice(0, 150)}`);
 
-        // If rate-limited or quota exceeded upstream, use smart fallback so user is never blocked
+        // If rate-limited or quota exceeded upstream, use smart fallback without credit deduction
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
-        return sendJson(res, 200, fallback);
+        return sendJson(res, 200, {
+          ...fallback,
+          credits: userCredits,
+        });
       }
 
       const groqData = (await groqRes.json()) as any;
@@ -308,7 +421,10 @@ You MUST return ONLY a JSON object matching this exact schema:
       if (!content) {
         console.warn('[Groq API Response]: Empty completion content, using fallback engine.');
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
-        return sendJson(res, 200, fallback);
+        return sendJson(res, 200, {
+          ...fallback,
+          credits: userCredits,
+        });
       }
 
       // Parse JSON from Groq output
@@ -319,8 +435,18 @@ You MUST return ONLY a JSON object matching this exact schema:
       } catch {
         console.warn('[Groq API Response]: Failed to parse JSON, using fallback engine.');
         const fallback = generateFallbackAnalysis(prompt, taskType, variation);
-        return sendJson(res, 200, fallback);
+        return sendJson(res, 200, {
+          ...fallback,
+          credits: userCredits,
+        });
       }
+
+      // Deduct 1 credit ONLY on genuine successful Groq API prompt-improvement request
+      const updatedCredits = deductCredit(
+        userCredits.userKey,
+        userCredits.userDate,
+        userCredits.used
+      );
 
       const structuredResponse = {
         id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -345,6 +471,7 @@ You MUST return ONLY a JSON object matching this exact schema:
           : ['Specify target audience', 'Provide example outputs'],
         createdAt: new Date().toISOString(),
         source: 'groq-api',
+        credits: updatedCredits,
       };
 
       return sendJson(res, 200, structuredResponse);
@@ -354,8 +481,12 @@ You MUST return ONLY a JSON object matching this exact schema:
         groqErr?.name === 'AbortError' ||
         groqErr?.message?.includes('timeout');
       console.warn(`[Groq Request Failed - ${isTimeout ? 'Timeout (15s)' : 'Network Error'}]: Using fallback engine.`);
+      // Failed upstream request: do not deduct credits
       const fallback = generateFallbackAnalysis(prompt, taskType, variation);
-      return sendJson(res, 200, fallback);
+      return sendJson(res, 200, {
+        ...fallback,
+        credits: userCredits,
+      });
     }
   } catch (err: any) {
     console.error('[API Handler Error]:', err?.message || err);

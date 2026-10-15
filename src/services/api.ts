@@ -2,6 +2,7 @@ import type {
   PromptAnalysis,
   TaskType,
 } from '../types';
+import { getCreditHeaders, saveClientCredits } from './credits';
 
 /**
  * Analyze an input prompt and generate improvement suggestions
@@ -18,11 +19,14 @@ export async function analyzePrompt(
   }
 
   let response: Response;
+  const creditHeaders = getCreditHeaders();
+
   try {
     response = await fetch('/api/improve', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...creditHeaders,
       },
       body: JSON.stringify({
         prompt: prompt.trim(),
@@ -38,10 +42,18 @@ export async function analyzePrompt(
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
 
-    // Quota Exceeded (HTTP 429)
-    if (response.status === 429 || errorData.error === 'QUOTA_EXCEEDED') {
+    // Credits Exhausted (HTTP 429)
+    if (errorData.error === 'CREDITS_EXHAUSTED') {
       throw new Error(
-        errorData.message || 'AI usage limit reached. Please try again later.'
+        errorData.message ||
+          'Daily free credit allowance reached (1,000/1,000 credits). Allowance resets at midnight in your local timezone.'
+      );
+    }
+
+    // Rate Limit / Quota Exceeded (HTTP 429)
+    if (response.status === 429 || errorData.error === 'RATE_LIMIT_EXCEEDED' || errorData.error === 'QUOTA_EXCEEDED') {
+      throw new Error(
+        errorData.message || 'AI request burst limit reached. Please wait a moment before trying again.'
       );
     }
 
@@ -66,8 +78,14 @@ export async function analyzePrompt(
     );
   }
 
-  const data = await response.json();
-  return data as PromptAnalysis;
+  const data = (await response.json()) as PromptAnalysis;
+
+  // If server returned updated credit status, persist it locally
+  if (data.credits) {
+    saveClientCredits(data.credits);
+  }
+
+  return data;
 }
 
 /**
