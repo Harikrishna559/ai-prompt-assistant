@@ -361,4 +361,59 @@ describe('Daily Free Credits (1,000 Credits) Test Suite', () => {
     assert.equal(finalResult.data.credits.used, 6);
     assert.equal(finalResult.data.credits.remaining, 994);
   });
+
+  test('7. Manipulated arbitrary dates (e.g., 2099-12-31) are rejected and default to server date', async () => {
+    const { req, res, waitForResponse } = createMockHttp({
+      method: 'GET',
+      headers: {
+        'x-client-id': 'test-spoof-date-client',
+        'x-client-date': '2099-12-31', // Future date attempt to bypass daily tracking
+      },
+    });
+
+    handler(req, res);
+    const result = await waitForResponse();
+
+    assert.equal(result.status, 200);
+    const today = new Date().toISOString().slice(0, 10);
+    assert.equal(result.data.credits.userDate, today, 'Server must reject date >36h from UTC and default to today');
+  });
+
+  test('8. Rotating X-Client-Id on the same IP cannot bypass IP-level daily credit ceiling', async () => {
+    const ip = '198.51.100.42';
+    const date = new Date().toISOString().slice(0, 10);
+
+    // First request with clientId-A succeeds and exhausts IP allowance
+    const { req: reqA, res: resA, waitForResponse: waitA } = createMockHttp({
+      method: 'POST',
+      ip,
+      headers: {
+        'x-client-id': 'client-A',
+        'x-client-date': date,
+        'x-client-used': '1000',
+      },
+      body: { prompt: 'Initial prompt from client A' },
+    });
+
+    handler(reqA, resA);
+    const resAData = await waitA();
+    assert.equal(resAData.status, 429, 'Client A reaches limit');
+
+    // Second request from same IP attempts to bypass limit by sending new client-B with used=0
+    const { req: reqB, res: resB, waitForResponse: waitB } = createMockHttp({
+      method: 'POST',
+      ip,
+      headers: {
+        'x-client-id': 'client-B-spoofed',
+        'x-client-date': date,
+        'x-client-used': '0',
+      },
+      body: { prompt: 'Bypassing with fresh client-id' },
+    });
+
+    handler(reqB, resB);
+    const resBData = await waitB();
+    assert.equal(resBData.status, 429, 'Client B on same exhausted IP must still be blocked');
+    assert.equal(resBData.data.error, 'CREDITS_EXHAUSTED');
+  });
 });

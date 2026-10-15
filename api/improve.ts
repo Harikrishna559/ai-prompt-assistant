@@ -12,6 +12,9 @@ const DAILY_CREDIT_ALLOWANCE = 1000;
 // In-memory credit tracking map: userKey -> { date: string, used: number }
 const userDailyCredits = new Map<string, { date: string; used: number }>();
 
+// In-memory credit tracking map by IP: clientIp -> { date: string; used: number }
+const ipDailyCredits = new Map<string, { date: string; used: number }>();
+
 // In-memory anti-abuse burst rate limiting map (IP -> { count, resetTime })
 const ipRateLimits = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
@@ -42,10 +45,22 @@ function getClientIp(req: IncomingMessage): string {
   return req.socket.remoteAddress || '127.0.0.1';
 }
 
+/**
+ * Validates and retrieves the user date. Only accepts dates within 36 hours
+ * of server UTC time (accommodating Earth's UTC-12 to UTC+14 timezone boundaries)
+ * to prevent attackers from sending arbitrary future or past dates to reset credits.
+ */
 function getUserDate(req: IncomingMessage): string {
   const clientDate = req.headers['x-client-date'];
   if (typeof clientDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(clientDate.trim())) {
-    return clientDate.trim();
+    const trimmed = clientDate.trim();
+    const clientTimestamp = Date.parse(`${trimmed}T00:00:00Z`);
+    if (!isNaN(clientTimestamp)) {
+      const diffHours = Math.abs((clientTimestamp - Date.now()) / (1000 * 60 * 60));
+      if (diffHours <= 36) {
+        return trimmed;
+      }
+    }
   }
   const now = new Date();
   return now.toISOString().slice(0, 10);
@@ -58,6 +73,24 @@ function getUserIdentifier(req: IncomingMessage): string {
     return `${clientIp}:${clientId.trim().slice(0, 64)}`;
   }
   return clientIp;
+}
+
+function getIpCredits(clientIp: string, userDate: string, clientUsed: number = 0): { date: string; used: number } {
+  const record = ipDailyCredits.get(clientIp);
+  if (!record || record.date !== userDate) {
+    const initialUsed = Math.min(clientUsed, DAILY_CREDIT_ALLOWANCE);
+    const newRecord = { date: userDate, used: initialUsed };
+    ipDailyCredits.set(clientIp, newRecord);
+    return newRecord;
+  }
+  const effectiveUsed = Math.max(record.used, clientUsed);
+  record.used = effectiveUsed;
+  return record;
+}
+
+function deductIpCredit(clientIp: string, userDate: string) {
+  const record = getIpCredits(clientIp, userDate);
+  record.used += 1;
 }
 
 /**
@@ -302,9 +335,10 @@ export default async function handler(
     });
   }
 
-  // 2. Server-Side Daily Credit Limit Enforcement (1,000 credits/day per user)
+  // 2. Server-Side Daily Credit Limit Enforcement (1,000 credits/day per user & IP ceiling)
   const userCredits = getUserCredits(req);
-  if (userCredits.used >= DAILY_CREDIT_ALLOWANCE) {
+  const ipCredits = getIpCredits(clientIp, userCredits.userDate, userCredits.used);
+  if (userCredits.used >= DAILY_CREDIT_ALLOWANCE || ipCredits.used >= DAILY_CREDIT_ALLOWANCE) {
     return sendJson(res, 429, {
       error: 'CREDITS_EXHAUSTED',
       message: 'Daily free credit allowance reached (1,000/1,000 credits used). Your allowance resets at midnight in your local timezone.',
@@ -447,6 +481,7 @@ You MUST return ONLY a JSON object matching this exact schema:
         userCredits.userDate,
         userCredits.used
       );
+      deductIpCredit(clientIp, userCredits.userDate);
 
       const structuredResponse = {
         id: `prompt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,

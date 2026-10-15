@@ -2,7 +2,7 @@
 
 > **Turn Simple Ideas into Powerful AI Prompts.**
 
-A production-ready SaaS application for prompt engineering, auditing, and optimization. Powered by **Groq Cloud API** and **Meta Llama 3.3 70B Versatile**, designed with a modern Sky-Blue theme and 100% public access with browser local storage.
+A production-grade prompt engineering, auditing, and optimization application. Powered by **Groq Cloud API** and **openai/gpt-oss-120b**, styled with a distinctive **editorial visual identity** (warm parchment, deep forest green, terracotta, and charcoal ink), and offering **100% public, registration-free access** with 1,000 daily free credits.
 
 - **Live Website:** [https://ai-prompt-assistant-jet.vercel.app](https://ai-prompt-assistant-jet.vercel.app)
 - **GitHub Repository:** [https://github.com/Harikrishna559/ai-prompt-assistant](https://github.com/Harikrishna559/ai-prompt-assistant)
@@ -11,28 +11,42 @@ A production-ready SaaS application for prompt engineering, auditing, and optimi
 
 ## Key Features
 
-- **Public SaaS (Zero Registration Required):** Use all prompt improver features, templates, and history instantly without signing up or logging in.
-- **Groq Cloud API Engine:** High-performance prompt analysis using Groq LPUs and Meta Llama 3.3 70B Versatile with intelligent rule-based fallback protection.
-- **Objective Quality Scoring:** Instant 0–100 score across 4 key dimensions: Clarity, Context, Specificity, and Completeness.
-- **100% Private Browser History:** Saved prompt iterations remain strictly in your browser's `localStorage` — zero data synced to server databases.
-- **Curated Template Library:** Battle-tested prompt blueprints across Coding, Writing, Education, Career, Business, and Data Analysis.
-- **Premium Sky-Blue Design System:** Modern typography, subtle glassmorphism, responsive mobile layout, and dark mode support.
-- **SEO Optimized:** Full Open Graph metadata, canonical URL tags, `robots.txt`, and XML sitemap for search engines.
+- **100% Public Access (No Login Required):** All pages and features (Home, Improve Prompt, Templates, Dashboard, History, About) are freely accessible without accounts, sign-ups, or login barriers.
+- **Groq Cloud API Integration (`openai/gpt-oss-120b`):** Ultra-fast OpenAI-compatible chat completions running on Groq LPUs with resilient, zero-failure rule-based fallback protection.
+- **1,000 Daily Free Credits:** Generous daily allowance of 1,000 prompt improvements per user with server-side enforcement, automated local timezone midnight resets, and real-time visual progress monitoring.
+- **Objective Quality Scoring:** Instant 0–100 score across 4 key dimensions: Clarity, Context, Specificity, and Completeness, with actionable diagnostic breakdowns.
+- **Distinctive Editorial Design Identity:** Warm parchment foundations (`#FAF9F5`), deep forest green primary accents (`#1F4A41`), selective terracotta highlights (`#BD5734`), responsive collapsible sidebar, and full dark mode.
+- **100% Private Browser History:** Saved prompt blueprints and analytics telemetry remain strictly in your browser's `localStorage` — zero personal data transmitted to third parties.
+- **Curated Template Library:** Domain-specific blueprints across Coding, Writing, Education, Career, Business, Data Analysis, and Social Media.
 
 ---
 
 ## Technology Stack
 
-- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS (Sky-Blue design system), Lucide React icons
+- **Frontend:** React 19, TypeScript, Vite 8, Tailwind CSS (editorial palette), Lucide React icons
 - **Backend / Serverless:** Vercel Serverless Functions (`api/improve.ts`), Node.js HTTP
-- **AI Integration:** Groq Cloud Chat Completion API (`https://api.groq.com/openai/v1/chat/completions`)
-- **Storage:** Client-side Browser LocalStorage Service (`src/services/localStorage.ts`)
+- **AI Provider:** Groq Cloud Chat Completion API (`openai/gpt-oss-120b`)
+- **Testing:** Native Node.js test runner (`node:test`, `node:assert`)
+- **Storage:** Client-side Browser LocalStorage (`src/services/localStorage.ts`, `src/services/credits.ts`)
+
+---
+
+## Daily Free Credits Architecture
+
+The application provides **1,000 free credits per user per day**:
+1. **Deduction Policy:** Exactly 1 credit is deducted **only** when a genuine Groq Cloud API improvement succeeds.
+2. **Zero Deduction on Errors:** Validation errors, upstream timeouts, 5xx server errors, or fallback executions consume **0 credits**.
+3. **Local Midnight Reset:** Allowance automatically replenishes at 00:00 (midnight) in the user's detected local timezone.
+4. **Server-Side Enforcement:** `api/improve.ts` enforces the 1,000 daily ceiling using IP-level tracking and client synchronization, returning HTTP 429 `CREDITS_EXHAUSTED` when depleted.
+5. **Burst Ceiling Protection:** Anti-abuse burst limiter restricts rapid automated bursts (30 requests/minute per IP) separately from daily credits.
+
+> **Anonymous Browser Limit Note:** Because the platform is 100% public without user accounts, the credit system operates as a best-effort anonymous limit based on browser client tokens and IP-level ceilings. For enterprise or commercial multi-tenant setups requiring tamper-proof per-user limits across devices, integrating persistent key-value storage (such as Upstash Redis or Vercel KV) is recommended.
 
 ---
 
 ## Environment Variables Configuration
 
-Set the following environment variables in your local `.env` or Vercel Dashboard project settings:
+Configure the following environment variables in your Vercel Project Settings or local `.env` file:
 
 ```env
 # Server-Side Only (Never exposed to client bundle)
@@ -40,11 +54,11 @@ GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-> **Note:** If `GROQ_API_KEY` is not provided, the serverless handler automatically uses its built-in rule-based optimization fallback engine so visitors never experience error pages.
+> **Security Note:** `GROQ_API_KEY` is maintained strictly on the server in `api/improve.ts`. It is never bundled into client JavaScript or exposed in API response payloads. If the key is omitted, the application seamlessly activates its rule-based heuristic fallback engine so public visitors are never presented with broken pages.
 
 ---
 
-## Local Development Setup
+## Local Development & Testing
 
 1. **Clone the repository:**
    ```bash
@@ -57,42 +71,31 @@ GROQ_MODEL=openai/gpt-oss-120b
    npm install
    ```
 
-3. **Start the local development server:**
+3. **Start local development server:**
    ```bash
    npm run dev
    ```
 
-4. **Build for production:**
+4. **Run automated test suite:**
+   ```bash
+   npm test
+   ```
+
+5. **Run linter:**
+   ```bash
+   npm run lint
+   ```
+
+6. **Build for production:**
    ```bash
    npm run build
    ```
 
 ---
 
-## Google Search Console Verification Guide
+## Vercel Deployment
 
-To index and monitor `https://ai-prompt-assistant-jet.vercel.app` on Google Search:
-
-1. **Log in to Google Search Console:**
-   Go to [https://search.google.com/search-console](https://search.google.com/search-console).
-
-2. **Add Property:**
-   Select **URL prefix** and enter `https://ai-prompt-assistant-jet.vercel.app/`.
-
-3. **Copy Verification Meta Tag:**
-   Select the **HTML tag** verification method. Copy the generated tag:
-   ```html
-   <meta name="google-site-verification" content="YOUR_UNIQUE_VERIFICATION_KEY" />
-   ```
-
-4. **Update `index.html`:**
-   Open `index.html` and replace `GOOGLE_SEARCH_CONSOLE_VERIFICATION_KEY` with your actual verification key:
-   ```html
-   <meta name="google-site-verification" content="YOUR_UNIQUE_VERIFICATION_KEY" />
-   ```
-
-5. **Deploy & Verify:**
-   Commit, push to GitHub, and click **Verify** in Google Search Console.
-
-6. **Submit Sitemap:**
-   In Google Search Console, navigate to **Sitemaps** in the sidebar, enter `sitemap.xml` (full URL: `https://ai-prompt-assistant-jet.vercel.app/sitemap.xml`), and click **Submit**.
+Deployments are automated through GitHub integration on the `master` branch:
+1. Pushes to `master` automatically trigger a production build on Vercel.
+2. Ensure `GROQ_API_KEY` is configured in Vercel under **Settings → Environment Variables** (Environment: Production).
+3. The serverless API endpoint `/api/improve` is automatically served by Vercel's serverless function runtime.
