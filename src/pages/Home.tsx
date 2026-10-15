@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-ink-900 dark:text-ink-50 tracking-tight leading-[1.12]">
             Turn Simple Ideas into{' '}
-            <span className="text-forest-700 dark:text-forest-300 underline decoration-terracotta-400/60 decoration-wavy decoration-2 underline-offset-8">
+            <span className="text-forest-700 dark:text-forest-300">
               Powerful AI Prompts.
             </span>
           </h1>
