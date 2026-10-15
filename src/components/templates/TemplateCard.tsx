@@ -52,56 +52,56 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   return (
-    <div className="flex flex-col justify-between bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 shadow-xs hover:shadow-md hover:border-sky-300 dark:hover:border-sky-700/60 transition-all duration-200 group">
+    <div className="flex flex-col justify-between bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl p-6 shadow-xs hover:border-parchment-400 dark:hover:border-ink-600 transition-all duration-150 group">
       <div>
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400 border border-sky-100 dark:border-sky-900/40 group-hover:scale-105 transition-transform">
+          <div className="p-2.5 rounded-xl bg-forest-50 text-forest-700 dark:bg-ink-900 dark:text-forest-300 border border-forest-100 dark:border-ink-700 transition-transform">
             {ICON_MAP[template.iconName] || <Sparkles className="w-5 h-5" />}
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 dark:bg-slate-800 dark:text-sky-300 border border-sky-100 dark:border-slate-700">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-parchment-100 text-ink-700 dark:bg-ink-900 dark:text-ink-300 border border-parchment-200 dark:border-ink-700">
             {template.category}
           </span>
         </div>
 
         {/* Title & Description */}
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        <h3 className="text-base font-bold text-ink-900 dark:text-ink-50 mb-1.5">
           {template.title}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 mb-4 line-clamp-2 leading-relaxed">
           {template.description}
         </p>
 
         {/* Example Prompt Box */}
-        <div className="relative mb-5 p-3.5 rounded-xl bg-sky-50/40 dark:bg-slate-950/70 border border-sky-100 dark:border-slate-800/80">
+        <div className="relative mb-5 p-3.5 rounded-xl bg-parchment-50 dark:bg-ink-900/60 border border-parchment-200 dark:border-ink-700/70">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Sample Prompt
+            <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400 dark:text-ink-500">
+              Pattern Blueprint
             </span>
             <button
               onClick={handleCopyExample}
               title="Copy sample prompt"
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1"
+              className="text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 transition-colors p-1"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-3 italic">
+          <p className="text-xs text-ink-800 dark:text-ink-200 line-clamp-3 italic font-sans leading-relaxed">
             "{template.examplePrompt}"
           </p>
         </div>
       </div>
 
       {/* Action */}
-      <div className="pt-3 border-t border-sky-50 dark:border-slate-800/80">
+      <div className="pt-3 border-t border-parchment-200 dark:border-ink-700/80">
         <Button
           onClick={() => onUseTemplate(template)}
           variant="secondary"
           size="sm"
-          className="w-full group-hover:bg-sky-500 group-hover:text-white dark:group-hover:bg-sky-500 dark:group-hover:text-white transition-colors font-medium"
+          className="w-full group-hover:bg-forest-700 group-hover:text-parchment-50 dark:group-hover:bg-forest-600 dark:group-hover:text-parchment-50 transition-colors font-medium"
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
-          Use Template
+          Use Blueprint
         </Button>
       </div>
     </div>

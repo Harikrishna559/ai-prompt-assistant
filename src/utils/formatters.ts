@@ -52,7 +52,7 @@ export function getScoreTier(score: number): {
 }
 
 /**
- * Get color classes according to quality score (0-100)
+ * Get color classes according to quality score (0-100) aligned with the editorial palette
  */
 export function getScoreColor(score: number): {
   text: string;
@@ -66,40 +66,40 @@ export function getScoreColor(score: number): {
 
   if (score >= 80) {
     return {
-      text: 'text-emerald-600 dark:text-emerald-400',
-      bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-      border: 'border-emerald-200 dark:border-emerald-800',
-      badgeBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-      barColor: 'bg-emerald-500',
+      text: 'text-emerald-700 dark:text-emerald-400',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+      border: 'border-emerald-200 dark:border-emerald-800/80',
+      badgeBg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+      barColor: 'bg-emerald-600',
       tier,
     };
   }
   if (score >= 60) {
     return {
-      text: 'text-blue-600 dark:text-blue-400',
-      bg: 'bg-blue-50 dark:bg-blue-950/40',
-      border: 'border-blue-200 dark:border-blue-800',
-      badgeBg: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-      barColor: 'bg-blue-500',
+      text: 'text-forest-700 dark:text-forest-300',
+      bg: 'bg-forest-50 dark:bg-ink-900',
+      border: 'border-forest-200 dark:border-ink-700',
+      badgeBg: 'bg-forest-100 text-forest-800 dark:bg-ink-800 dark:text-forest-300',
+      barColor: 'bg-forest-700 dark:bg-forest-500',
       tier,
     };
   }
   if (score >= 40) {
     return {
-      text: 'text-amber-600 dark:text-amber-400',
-      bg: 'bg-amber-50 dark:bg-amber-950/40',
-      border: 'border-amber-200 dark:border-amber-800',
-      badgeBg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-      barColor: 'bg-amber-500',
+      text: 'text-amber-800 dark:text-amber-300',
+      bg: 'bg-amber-50 dark:bg-amber-950/30',
+      border: 'border-amber-200 dark:border-amber-800/80',
+      badgeBg: 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300',
+      barColor: 'bg-amber-600',
       tier,
     };
   }
   return {
-    text: 'text-rose-600 dark:text-rose-400',
-    bg: 'bg-rose-50 dark:bg-rose-950/40',
-    border: 'border-rose-200 dark:border-rose-800',
-    badgeBg: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
-    barColor: 'bg-rose-500',
+    text: 'text-terracotta-700 dark:text-terracotta-300',
+    bg: 'bg-terracotta-50 dark:bg-terracotta-950/30',
+    border: 'border-terracotta-200 dark:border-terracotta-800/80',
+    badgeBg: 'bg-terracotta-100 text-terracotta-800 dark:bg-terracotta-950/60 dark:text-terracotta-300',
+    barColor: 'bg-terracotta-600',
     tier,
   };
 }

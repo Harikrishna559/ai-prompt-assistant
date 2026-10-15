@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
     { label: 'Home', path: '/' },
     { label: 'Improve Prompt', path: '/improve' },
     { label: 'Templates', path: '/templates' },
+    { label: 'Dashboard', path: '/dashboard' },
     { label: 'History', path: '/history' },
     { label: 'About', path: '/about' },
   ];
@@ -23,21 +24,21 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-sky-100 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md transition-colors shadow-xs">
+    <header className="sticky top-0 z-40 w-full border-b border-parchment-200 dark:border-ink-800 bg-parchment-50/90 dark:bg-ink-950/90 backdrop-blur-md transition-colors shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
           to="/"
-          className="flex items-center gap-3 group rounded-xl p-1 focus-visible:ring-2 focus-visible:ring-sky-500"
+          className="flex items-center gap-3 group rounded-xl p-1 focus-visible:ring-2 focus-visible:ring-forest-700"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-sky-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 text-sky-100" />
+          <div className="w-10 h-10 rounded-xl bg-forest-700 dark:bg-forest-600 flex items-center justify-center text-parchment-50 shadow-xs group-hover:bg-forest-800 transition-colors">
+            <Sparkles className="w-5 h-5 text-parchment-100" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              AI Prompt Assistant
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-950/80 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/60">
-                Public SaaS
+            <span className="font-extrabold text-base tracking-tight text-ink-900 dark:text-ink-50 flex items-center gap-2">
+              AI Prompt Studio
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-forest-50 text-forest-800 dark:bg-ink-900 dark:text-forest-300 border border-forest-200 dark:border-ink-700">
+                Editorial
               </span>
             </span>
           </div>
@@ -51,10 +52,10 @@ export const Navbar: React.FC = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
                   active
-                    ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 font-semibold shadow-2xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-900'
+                    ? 'bg-forest-700 text-parchment-50 dark:bg-forest-600 font-semibold shadow-xs'
+                    : 'text-ink-700 dark:text-ink-300 hover:text-ink-900 dark:hover:text-ink-50 hover:bg-parchment-100 dark:hover:bg-ink-800'
                 }`}
               >
                 {link.label}
@@ -69,9 +70,9 @@ export const Navbar: React.FC = () => {
           <button
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            className="p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-sky-50 dark:hover:bg-slate-800 transition-colors"
+            className="p-2.5 rounded-xl text-ink-600 dark:text-ink-300 hover:text-ink-900 dark:hover:text-ink-50 hover:bg-parchment-100 dark:hover:bg-ink-800 transition-colors border border-parchment-200 dark:border-ink-700"
           >
-            {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-slate-600" />}
+            {theme === 'dark' ? <Sun className="w-4.5 h-4.5 text-amber-400" /> : <Moon className="w-4.5 h-4.5 text-ink-700" />}
           </button>
 
           <Link to="/improve">
@@ -90,7 +91,7 @@ export const Navbar: React.FC = () => {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="p-2 rounded-xl text-ink-600 dark:text-ink-400 hover:bg-parchment-100 dark:hover:bg-ink-800"
           >
             {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
           </button>
@@ -98,7 +99,7 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+            className="p-2 rounded-xl text-ink-700 dark:text-ink-300 hover:bg-parchment-100 dark:hover:bg-ink-800 focus:outline-none"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -107,7 +108,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-sky-100 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg px-4 pt-3 pb-5 space-y-2 shadow-xl animate-fade-in">
+        <div className="md:hidden border-b border-parchment-200 dark:border-ink-800 bg-white/95 dark:bg-ink-900/95 backdrop-blur-md px-4 pt-3 pb-5 space-y-2 shadow-xl animate-fade-in">
           {navLinks.map((link) => {
             const active = isActive(link.path);
             return (
@@ -117,8 +118,8 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-2.5 rounded-xl text-base font-medium transition-colors ${
                   active
-                    ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 font-semibold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-forest-700 text-parchment-50 font-semibold'
+                    : 'text-ink-800 dark:text-ink-200 hover:bg-parchment-100 dark:hover:bg-ink-800'
                 }`}
               >
                 {link.label}
@@ -126,7 +127,7 @@ export const Navbar: React.FC = () => {
             );
           })}
 
-          <div className="pt-3 border-t border-sky-100 dark:border-slate-800">
+          <div className="pt-3 border-t border-parchment-200 dark:border-ink-800">
             <Link
               to="/improve"
               onClick={() => setMobileMenuOpen(false)}

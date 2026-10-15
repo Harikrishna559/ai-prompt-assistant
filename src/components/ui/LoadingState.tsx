@@ -9,8 +9,8 @@ interface LoadingStateProps {
 const STAGES = [
   'Connecting to Groq Cloud API...',
   'Evaluating clarity & context score...',
-  'Analyzing specificity & completeness...',
-  'Building expert role & structural framework...',
+  'Analyzing specificity & completeness bounds...',
+  'Architecting expert role & structural framework...',
   'Finalizing optimized prompt deliverable...',
 ];
 
@@ -27,22 +27,19 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl shadow-xs animate-fade-in">
-      {/* Visual pulse icon */}
-      <div className="relative mb-6">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 via-sky-600 to-blue-700 p-0.5 shadow-md shadow-sky-500/20">
-          <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center text-sky-600 dark:text-sky-400">
-            <Sparkles className="w-8 h-8 animate-spin text-sky-500" style={{ animationDuration: '6s' }} />
-          </div>
+    <div className="flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl shadow-xs animate-fade-in">
+      {/* Quiet, craftsman-grade icon */}
+      <div className="relative mb-5">
+        <div className="w-14 h-14 rounded-2xl bg-forest-700 text-parchment-50 flex items-center justify-center shadow-xs">
+          <Sparkles className="w-6 h-6 animate-spin text-parchment-100" style={{ animationDuration: '6s' }} />
         </div>
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-sky-400 rounded-full border-2 border-white dark:border-slate-900 animate-ping" />
       </div>
 
-      <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+      <h3 className="text-lg sm:text-xl font-bold text-ink-900 dark:text-ink-50 mb-1">
         {message}
       </h3>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 max-w-sm">
-        Applying advanced AI prompt engineering frameworks to generate structured recommendations.
+      <p className="text-xs text-ink-500 dark:text-ink-400 mb-6 max-w-sm">
+        Running deterministic optimization and structural analysis via Groq Cloud engine.
       </p>
 
       {/* Structured stages list */}
@@ -55,20 +52,20 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
               key={stage}
               className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs transition-all duration-200 ${
                 isCurrent
-                  ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold'
+                  ? 'bg-forest-50 dark:bg-ink-900 text-forest-800 dark:text-forest-200 font-semibold'
                   : isDone
-                  ? 'text-emerald-600 dark:text-emerald-400 font-medium'
-                  : 'text-slate-400 dark:text-slate-600 opacity-60'
+                  ? 'text-forest-700 dark:text-forest-400 font-medium'
+                  : 'text-ink-400 dark:text-ink-600 opacity-60'
               }`}
             >
               {isDone ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-forest-700 dark:text-forest-400 shrink-0" />
               ) : isCurrent ? (
                 <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-sky-600 dark:bg-sky-400 animate-ping" />
+                  <div className="w-2 h-2 rounded-full bg-forest-700 dark:bg-forest-400 animate-pulse" />
                 </div>
               ) : (
-                <Circle className="w-4 h-4 text-slate-300 dark:text-slate-700 shrink-0" />
+                <Circle className="w-4 h-4 text-parchment-400 dark:text-ink-600 shrink-0" />
               )}
               <span>{stage}</span>
             </div>
@@ -77,9 +74,9 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       </div>
 
       {/* Progress bar visual */}
-      <div className="w-64 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-6">
+      <div className="w-64 h-1.5 bg-parchment-200 dark:bg-ink-900 rounded-full overflow-hidden mt-6">
         <div
-          className="h-full bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 rounded-full transition-all duration-300"
+          className="h-full bg-forest-700 dark:bg-forest-500 rounded-full transition-all duration-300"
           style={{ width: `${((activeStage + 1) / STAGES.length) * 100}%` }}
         />
       </div>
@@ -88,12 +85,12 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
 };
 
 export const CardSkeleton: React.FC = () => (
-  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 animate-pulse space-y-4">
-    <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
-    <div className="h-10 bg-slate-100 dark:bg-slate-800/60 rounded" />
+  <div className="bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700 rounded-2xl p-6 animate-pulse space-y-4">
+    <div className="h-4 bg-parchment-200 dark:bg-ink-700 rounded w-1/3" />
+    <div className="h-10 bg-parchment-100 dark:bg-ink-900/60 rounded" />
     <div className="space-y-2 pt-2">
-      <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-5/6" />
-      <div className="h-3 bg-slate-100 dark:bg-slate-800/50 rounded w-4/6" />
+      <div className="h-3 bg-parchment-100 dark:bg-ink-900/50 rounded w-5/6" />
+      <div className="h-3 bg-parchment-100 dark:bg-ink-900/50 rounded w-4/6" />
     </div>
   </div>
 );

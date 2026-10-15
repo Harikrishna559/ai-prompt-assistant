@@ -19,26 +19,26 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   trend,
 }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+    <div className="bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl p-6 shadow-xs transition-all hover:border-parchment-400 dark:hover:border-ink-600">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-bold uppercase tracking-wider text-ink-500 dark:text-ink-400">
           {title}
         </span>
-        <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400">
+        <div className="p-2.5 rounded-xl bg-forest-50 dark:bg-ink-900 text-forest-700 dark:text-forest-300 border border-forest-100 dark:border-ink-700">
           {icon}
         </div>
       </div>
 
       <div className="flex items-baseline gap-2">
-        <span className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+        <span className="text-3xl font-black text-ink-900 dark:text-ink-50 tracking-tight">
           {value}
         </span>
         {trend && (
           <span
-            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+            className={`text-xs font-bold px-2 py-0.5 rounded-full ${
               trend.isPositive
-                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
-                : 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
+                ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                : 'bg-terracotta-50 text-terracotta-800 dark:bg-terracotta-950/40 dark:text-terracotta-300'
             }`}
           >
             {trend.value}
@@ -47,7 +47,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       </div>
 
       {subtitle && (
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+        <p className="text-xs text-ink-400 dark:text-ink-500 mt-2">
           {subtitle}
         </p>
       )}

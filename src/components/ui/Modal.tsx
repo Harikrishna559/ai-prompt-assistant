@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-950/60 backdrop-blur-2xs animate-fade-in"
     >
       <div
         className="fixed inset-0"
@@ -55,19 +55,19 @@ export const Modal: React.FC<ModalProps> = ({
         aria-hidden="true"
       />
       <div
-        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-sky-100 dark:border-slate-800 z-10 overflow-hidden transform transition-all`}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-ink-800 rounded-2xl shadow-xl border border-parchment-200 dark:border-ink-700 z-10 overflow-hidden transform transition-all`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-sky-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-parchment-200 dark:border-ink-700 bg-parchment-50 dark:bg-ink-900/50">
           <h3
             id="modal-title"
-            className="text-lg font-semibold text-slate-900 dark:text-slate-100"
+            className="text-lg font-bold text-ink-900 dark:text-ink-50 tracking-tight"
           >
             {title}
           </h3>
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-xl text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 hover:bg-parchment-100 dark:hover:bg-ink-700 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

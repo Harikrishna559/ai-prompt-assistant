@@ -49,31 +49,31 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-6 sm:p-7 shadow-xs transition-all">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl p-6 sm:p-7 shadow-xs transition-all">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <label
             htmlFor="prompt-textarea"
-            className="block text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2"
+            className="block text-base font-bold text-ink-900 dark:text-ink-50 flex items-center gap-2"
           >
-            <Wand2 className="w-4 h-4 text-sky-500" />
-            Enter Your Raw Prompt
+            <Wand2 className="w-4 h-4 text-forest-700 dark:text-forest-400" />
+            Enter Raw Instruction or Concept
           </label>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Describe your idea, task, or rough question below.
+          <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5">
+            Describe your rough task, question, or prompt below.
           </p>
         </div>
 
         {/* Task Type selector */}
         <div className="flex items-center gap-2">
-          <label htmlFor="task-type-select" className="text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
-            Task Category:
+          <label htmlFor="task-type-select" className="text-xs font-semibold text-ink-500 dark:text-ink-400 shrink-0">
+            Domain Category:
           </label>
           <select
             id="task-type-select"
             value={taskType}
             onChange={(e) => onTaskTypeChange(e.target.value as TaskType)}
-            className="text-xs font-medium bg-sky-50/60 dark:bg-slate-800 border border-sky-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer transition-colors shadow-2xs"
+            className="text-xs font-medium bg-parchment-100 dark:bg-ink-900 border border-parchment-300 dark:border-ink-700 text-ink-900 dark:text-ink-100 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-forest-700 cursor-pointer transition-colors shadow-2xs"
           >
             {TASK_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -91,7 +91,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           value={prompt}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="e.g. Write a python script to parse CSV files and generate a weekly summary report..."
-          className="w-full rounded-xl bg-slate-50/80 dark:bg-slate-950/70 border border-sky-100 dark:border-slate-800 p-4 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all resize-y min-h-[150px] leading-relaxed"
+          className="w-full rounded-xl bg-parchment-50/70 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 p-4 text-sm md:text-base text-ink-900 dark:text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-forest-700 focus:bg-white dark:focus:bg-ink-900 transition-all resize-y min-h-[150px] leading-relaxed"
         />
 
         {/* Character Count & Clear */}
@@ -99,10 +99,10 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           <span
             className={`text-xs font-mono transition-colors ${
               charCount > maxChars
-                ? 'text-rose-500 font-bold'
+                ? 'text-terracotta-600 font-bold'
                 : charCount > maxChars * 0.9
-                ? 'text-amber-500 font-medium'
-                : 'text-slate-400 dark:text-slate-500'
+                ? 'text-amber-600 font-medium'
+                : 'text-ink-400 dark:text-ink-500'
             }`}
           >
             {charCount} / {maxChars}
@@ -116,7 +116,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
                   onReset();
                   setValidationError(null);
                 }}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-sky-50 dark:hover:bg-slate-800"
+                className="text-xs text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-parchment-100 dark:hover:bg-ink-700"
               >
                 <RotateCcw className="w-3 h-3" />
                 Clear
@@ -128,16 +128,16 @@ export const PromptInput: React.FC<PromptInputProps> = ({
 
       {/* Validation Message */}
       {validationError && (
-        <div className="mt-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300 animate-fade-in">
+        <div className="mt-3 p-3 rounded-xl bg-terracotta-50 dark:bg-ink-900 border border-terracotta-200 dark:border-terracotta-900/60 flex items-center gap-2 text-xs text-terracotta-800 dark:text-terracotta-300 animate-fade-in">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Action Bar */}
-      <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t border-sky-50 dark:border-slate-800/80">
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pt-4 border-t border-parchment-200 dark:border-ink-700">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Try quick samples:</span>
+          <span className="text-xs font-medium text-ink-500 dark:text-ink-400">Try quick samples:</span>
           {[
             { label: 'Build REST API', val: 'Write a Node.js REST API with authentication and rate limiting' },
             { label: 'Blog Outline', val: 'Create an engaging blog post outline about AI prompt engineering' },
@@ -147,7 +147,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
               key={sample.label}
               type="button"
               onClick={() => handleInputChange(sample.val)}
-              className="text-xs font-medium px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-950/80 transition-colors border border-sky-100 dark:border-sky-900/40"
+              className="text-xs font-medium px-2.5 py-1 rounded-lg bg-parchment-100 dark:bg-ink-900 text-ink-700 dark:text-ink-300 hover:bg-parchment-200 dark:hover:bg-ink-700 transition-colors border border-parchment-200 dark:border-ink-700"
             >
               "{sample.label}"
             </button>
@@ -160,7 +160,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           size="md"
           isLoading={isLoading}
           rightIcon={<Sparkles className="w-4 h-4" />}
-          className="w-full sm:w-auto shadow-md shadow-sky-500/10 font-semibold"
+          className="w-full sm:w-auto font-medium"
         >
           Enhance Prompt Now
         </Button>

@@ -40,37 +40,37 @@ export const Templates: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-9">
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-          <span>Pre-Engineered Pattern Library</span>
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-forest-50 dark:bg-ink-900 border border-forest-200/80 dark:border-ink-700 text-forest-800 dark:text-forest-300 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+          <span>Curated Blueprint Catalog</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-ink-900 dark:text-ink-50 tracking-tight">
           Prompt Templates
         </h1>
-        <p className="text-base text-slate-600 dark:text-slate-400">
-          Start with proven, battle-tested prompt blueprints for any domain.
+        <p className="text-sm sm:text-base text-ink-500 dark:text-ink-400">
+          Start with proven, battle-tested prompt architectures for any discipline.
         </p>
       </div>
 
       {/* Search & Category Filter Controls */}
       <div className="space-y-4">
         {/* Search Bar */}
-        <div className="relative max-w-xl mx-auto">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+        <div className="relative max-w-lg mx-auto">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-ink-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search templates by keyword, category, or task..."
-            className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs transition-all"
+            placeholder="Search blueprints by keyword, category, or role..."
+            className="w-full pl-11 pr-10 py-2.5 rounded-xl bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700 text-sm text-ink-900 dark:text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-forest-700 shadow-2xs transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-ink-700 dark:hover:text-ink-200"
             >
               <X className="w-4 h-4" />
             </button>
@@ -79,7 +79,7 @@ export const Templates: React.FC = () => {
 
         {/* Category Filter Pills */}
         <div className="flex items-center justify-center gap-2 overflow-x-auto py-2 no-scrollbar px-2">
-          {PROMPT_CATEGORIES.map((category) => {
+          {['All', ...PROMPT_CATEGORIES.filter((c) => c !== 'All')].map((category) => {
             const isSelected = selectedCategory === category;
             return (
               <button
@@ -87,8 +87,8 @@ export const Templates: React.FC = () => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-sky-500 text-white shadow-xs'
-                    : 'bg-white dark:bg-slate-900 border border-sky-100/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-slate-800/60'
+                    ? 'bg-forest-700 dark:bg-forest-600 text-parchment-50 shadow-2xs'
+                    : 'bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700 text-ink-700 dark:text-ink-300 hover:bg-parchment-100 dark:hover:bg-ink-700'
                 }`}
               >
                 {category}
@@ -111,7 +111,7 @@ export const Templates: React.FC = () => {
         </div>
       ) : (
         <EmptyState
-          title="No templates found"
+          title="No blueprints found"
           description="Try modifying your search keywords or switching category filters."
           actionText="Reset All Filters"
           onAction={() => {

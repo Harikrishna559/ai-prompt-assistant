@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -21,25 +21,27 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
+    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.99]';
 
   const sizeStyles = {
     sm: 'text-xs px-3 py-1.5 gap-1.5',
     md: 'text-sm px-4 py-2.5 gap-2',
-    lg: 'text-base px-6 py-3.5 gap-2.5 shadow-sm',
+    lg: 'text-base px-5 py-3 gap-2.5 shadow-xs',
   };
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white shadow-sm shadow-sky-500/25 focus:ring-sky-500 border border-transparent dark:focus:ring-offset-slate-900 font-semibold',
+      'bg-forest-700 hover:bg-forest-800 text-parchment-50 border border-forest-800/30 shadow-xs focus-visible:ring-forest-700 dark:bg-forest-600 dark:hover:bg-forest-500 font-medium',
+    accent:
+      'bg-terracotta-600 hover:bg-terracotta-700 text-white border border-terracotta-700/30 shadow-xs focus-visible:ring-terracotta-600 font-medium',
     secondary:
-      'bg-sky-50 hover:bg-sky-100 text-sky-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-sky-200 focus:ring-sky-400 border border-sky-100 dark:border-slate-700',
+      'bg-parchment-100 hover:bg-parchment-200/80 text-ink-900 dark:bg-ink-800 dark:hover:bg-ink-700 dark:text-ink-100 border border-parchment-300 dark:border-ink-700 focus-visible:ring-forest-700',
     outline:
-      'bg-white hover:bg-sky-50/70 text-slate-700 dark:text-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-sky-200/80 dark:border-slate-700 focus:ring-sky-500',
+      'bg-white hover:bg-parchment-50 text-ink-800 dark:text-ink-200 dark:bg-ink-800 dark:hover:bg-ink-700/80 border border-parchment-300 dark:border-ink-700 focus-visible:ring-forest-700 shadow-2xs',
     ghost:
-      'bg-transparent hover:bg-sky-50/70 text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:ring-sky-400',
+      'bg-transparent hover:bg-parchment-100/70 text-ink-700 dark:text-ink-300 dark:hover:bg-ink-800/80 dark:hover:text-ink-100 focus-visible:ring-forest-700',
     danger:
-      'bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 focus:ring-rose-500',
+      'bg-terracotta-50 hover:bg-terracotta-100 text-terracotta-700 dark:bg-ink-900 dark:hover:bg-terracotta-950/40 dark:text-terracotta-300 border border-terracotta-200 dark:border-terracotta-900/50 focus-visible:ring-terracotta-600',
   };
 
   return (

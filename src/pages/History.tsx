@@ -121,23 +121,23 @@ export const History: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />
-            <span>Browser Local Storage (Private)</span>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-forest-50 dark:bg-ink-900 border border-forest-200/80 dark:border-ink-700 text-forest-800 dark:text-forest-300 text-xs font-semibold mb-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+            <span>Browser Local Storage (100% Private)</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h1 className="text-3xl font-extrabold text-ink-900 dark:text-ink-50 tracking-tight">
             Prompt History
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            History is stored strictly in your current browser session.
+          <p className="text-sm text-ink-500 dark:text-ink-400 mt-1">
+            Historical records are preserved directly in your current browser session.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {historyItems.length > 0 && (
             <Button
               variant="outline"
@@ -145,7 +145,7 @@ export const History: React.FC = () => {
               onClick={() => setShowClearConfirm(true)}
               leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             >
-              Clear History
+              Clear Session
             </Button>
           )}
           <Button
@@ -160,28 +160,28 @@ export const History: React.FC = () => {
       </div>
 
       {/* Privacy Notice Banner */}
-      <div className="p-4 rounded-2xl bg-sky-50/60 dark:bg-sky-950/40 border border-sky-100 dark:border-sky-900/40 flex items-start gap-3 text-xs text-sky-800 dark:text-sky-300">
-        <ShieldCheck className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
+      <div className="p-4 rounded-2xl bg-parchment-100/70 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700/80 flex items-start gap-3 text-xs text-ink-700 dark:text-ink-300">
+        <ShieldCheck className="w-5 h-5 text-forest-700 dark:text-forest-400 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold">Privacy Disclaimer:</p>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-            Your saved prompt iterations are stored directly in your browser's local storage. Your history is never transmitted to shared database servers, preserving complete privacy across sessions.
+          <p className="font-bold text-ink-900 dark:text-ink-100">Zero Cloud Data Retention:</p>
+          <p className="text-ink-500 dark:text-ink-400 leading-relaxed">
+            Your saved prompt iterations remain in your local browser sandbox. No server database retains your queries, preserving confidentiality across development workflows.
           </p>
         </div>
       </div>
 
       {/* Filter and Search Controls */}
-      <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
+      <div className="bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl p-4 sm:p-5 shadow-xs space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {/* Search */}
           <div className="relative sm:col-span-6">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search history by prompt text..."
-              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              placeholder="Search history by keyword or phrase..."
+              className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-ink-900 dark:text-ink-50 focus:outline-none focus:ring-2 focus:ring-forest-700"
             />
           </div>
 
@@ -190,7 +190,7 @@ export const History: React.FC = () => {
             <select
               value={selectedTaskType}
               onChange={(e) => setSelectedTaskType(e.target.value)}
-              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full py-2 px-3 text-sm rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-ink-900 dark:text-ink-50 focus:outline-none focus:ring-2 focus:ring-forest-700"
             >
               <option value="All">All Categories</option>
               {TASK_TYPES.map((type) => (
@@ -206,7 +206,7 @@ export const History: React.FC = () => {
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as any)}
-              className="w-full py-2 px-3 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full py-2 px-3 text-sm rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-ink-900 dark:text-ink-50 focus:outline-none focus:ring-2 focus:ring-forest-700"
             >
               <option value="newest">Sort: Newest First</option>
               <option value="oldest">Sort: Oldest First</option>
@@ -216,9 +216,9 @@ export const History: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 pt-1">
+        <div className="flex items-center justify-between text-xs text-ink-400 dark:text-ink-500 pt-1">
           <span>
-            Showing {filteredAndSortedItems.length} of {historyItems.length} stored prompts
+            Showing {filteredAndSortedItems.length} of {historyItems.length} stored prompt records
           </span>
           {(searchQuery || selectedTaskType !== 'All') && (
             <button
@@ -226,9 +226,9 @@ export const History: React.FC = () => {
                 setSearchQuery('');
                 setSelectedTaskType('All');
               }}
-              className="text-sky-600 dark:text-sky-400 hover:underline"
+              className="text-forest-700 dark:text-forest-400 hover:underline font-medium"
             >
-              Clear search filters
+              Clear filters
             </button>
           )}
         </div>
@@ -236,17 +236,17 @@ export const History: React.FC = () => {
 
       {/* History Items List */}
       {!isLoading && filteredAndSortedItems.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {filteredAndSortedItems.map((item) => {
             const scoreColor = getScoreColor(item.score);
             return (
               <div
                 key={item.id}
-                className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-sky-300 dark:hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl p-5 shadow-xs hover:border-parchment-400 dark:hover:border-ink-600 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
-                <div className="space-y-2 max-w-2xl">
+                <div className="space-y-1.5 max-w-2xl min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-slate-700">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-parchment-100 dark:bg-ink-900 text-ink-700 dark:text-ink-300 border border-parchment-200 dark:border-ink-700">
                       {item.taskType}
                     </span>
                     <span
@@ -254,18 +254,18 @@ export const History: React.FC = () => {
                     >
                       Score: {item.score}/100
                     </span>
-                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <span className="text-xs text-ink-400 flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <h3 className="text-sm font-bold text-ink-900 dark:text-ink-50 font-mono truncate">
                       "{item.originalPrompt}"
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 font-sans">
-                      Improved: {item.improvedPrompt}
+                    <p className="text-xs text-ink-500 dark:text-ink-400 line-clamp-1 mt-0.5 font-sans">
+                      Deliverable: {item.improvedPrompt}
                     </p>
                   </div>
                 </div>
@@ -296,12 +296,12 @@ export const History: React.FC = () => {
       ) : (
         /* Empty State */
         <EmptyState
-          icon={<HistoryIcon className="w-8 h-8 text-sky-500" />}
-          title={historyItems.length === 0 ? 'No prompts saved yet' : 'No prompts match filters'}
+          icon={<HistoryIcon className="w-7 h-7 text-forest-700 dark:text-forest-400" />}
+          title={historyItems.length === 0 ? 'No prompts saved yet' : 'No records match search'}
           description={
             historyItems.length === 0
               ? 'Prompts you enhance in the improver will automatically save here in your browser.'
-              : 'Try clearing your search query or selecting a different category filter.'
+              : 'Try clearing your search query or switching to another domain filter.'
           }
           actionText={historyItems.length === 0 ? 'Enhance a Prompt Now' : 'Reset Search Filters'}
           onAction={() => {
@@ -324,8 +324,8 @@ export const History: React.FC = () => {
           maxWidth="sm"
         >
           <div className="space-y-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Are you sure you want to delete this prompt from your local browser storage?
+            <p className="text-xs sm:text-sm text-ink-600 dark:text-ink-400">
+              Are you sure you want to remove this prompt from your local browser storage?
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <Button
@@ -356,7 +356,7 @@ export const History: React.FC = () => {
           maxWidth="sm"
         >
           <div className="space-y-4">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-xs sm:text-sm text-ink-600 dark:text-ink-400">
               This will permanently delete all stored prompt records from your current browser session.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -372,7 +372,7 @@ export const History: React.FC = () => {
                 size="sm"
                 onClick={handleClearAll}
               >
-                Clear All History
+                Clear Session
               </Button>
             </div>
           </div>
@@ -389,12 +389,12 @@ export const History: React.FC = () => {
         >
           <div className="space-y-6">
             {/* Meta header */}
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pb-3 border-b border-sky-50 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs pb-3 border-b border-parchment-200 dark:border-ink-700">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sky-600 dark:text-sky-400">
+                <span className="font-bold text-forest-700 dark:text-forest-400">
                   {viewingItem.taskType}
                 </span>
-                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span className="text-ink-300 dark:text-ink-700">•</span>
                 <span
                   className={`font-bold px-2.5 py-0.5 rounded-full ${
                     getScoreColor(viewingItem.score).badgeBg
@@ -403,17 +403,17 @@ export const History: React.FC = () => {
                   Score: {viewingItem.score}/100
                 </span>
               </div>
-              <span className="text-slate-400">
+              <span className="text-ink-400">
                 Date: {formatDate(viewingItem.createdAt)}
               </span>
             </div>
 
             {/* Original */}
             <div>
-              <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                Original Prompt
+              <span className="block text-xs font-bold uppercase tracking-wider text-ink-400 mb-1.5">
+                Original Input
               </span>
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 font-mono">
+              <div className="p-3.5 rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-xs sm:text-sm text-ink-900 dark:text-ink-100 font-mono">
                 "{viewingItem.originalPrompt}"
               </div>
             </div>
@@ -421,19 +421,19 @@ export const History: React.FC = () => {
             {/* Improved Output */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-                  Improved Prompt
+                <span className="text-xs font-bold uppercase tracking-wider text-forest-800 dark:text-forest-300 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+                  Optimized Deliverable
                 </span>
                 <button
                   onClick={() => handleCopy(viewingItem.improvedPrompt)}
-                  className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-1"
+                  className="text-xs text-ink-500 hover:text-ink-800 dark:hover:text-ink-200 flex items-center gap-1 font-medium"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
-              <div className="p-4 rounded-xl bg-sky-50/40 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
+              <div className="p-4 rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-xs sm:text-sm text-ink-900 dark:text-ink-100 leading-relaxed font-sans">
                 {viewingItem.improvedPrompt}
               </div>
             </div>
@@ -441,17 +441,17 @@ export const History: React.FC = () => {
             {/* Why It Was Improved */}
             {viewingItem.whyBetter && viewingItem.whyBetter.length > 0 && (
               <div>
-                <span className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  Why It Was Improved
+                <span className="block text-xs font-bold uppercase tracking-wider text-ink-400 mb-2 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+                  Why This Structure Is Better
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {viewingItem.whyBetter.map((reason, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 text-xs font-medium text-emerald-900 dark:text-emerald-300"
+                      className="flex items-center gap-2 p-2.5 rounded-xl bg-forest-50/50 dark:bg-ink-900/40 border border-forest-200/70 dark:border-forest-900/40 text-xs font-medium text-forest-950 dark:text-forest-200"
                     >
-                      <span>✓</span>
+                      <span className="text-forest-700 font-bold">✓</span>
                       <span>{reason}</span>
                     </div>
                   ))}
@@ -460,7 +460,7 @@ export const History: React.FC = () => {
             )}
 
             {/* Modal actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-sky-50 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-parchment-200 dark:border-ink-700">
               <Button
                 variant="outline"
                 size="sm"

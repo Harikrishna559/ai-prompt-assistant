@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, RefreshCw, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Copy, Check, RefreshCw, Bookmark, BookmarkCheck, Sparkles } from 'lucide-react';
 import { copyToClipboard } from '../../utils/clipboard';
 import { Button } from '../ui/Button';
 
@@ -44,29 +44,31 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
     if (onSave) {
       const result = await onSave();
       if (result === true) {
-        showToast('Prompt saved to browser history!');
+        showToast('Saved to browser session history!');
       }
     }
   };
 
   return (
-    <div className="relative bg-white dark:bg-slate-900 border-2 border-sky-400/40 dark:border-sky-500/40 rounded-2xl p-6 shadow-md shadow-sky-500/5">
+    <div className="relative bg-white dark:bg-ink-800 border-2 border-forest-600/60 dark:border-forest-500/50 rounded-2xl p-6 shadow-xs">
       {/* Toast notification */}
       {feedbackToast && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-semibold shadow-xl flex items-center gap-2 animate-fade-in border border-sky-400/30">
-          <Check className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-xl bg-ink-900 text-parchment-50 text-xs font-semibold shadow-xl flex items-center gap-2 animate-fade-in border border-forest-500/40">
+          <Check className="w-4 h-4 text-emerald-400" />
           {feedbackToast}
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-sky-50 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-parchment-200 dark:border-ink-700">
         <div className="flex items-center gap-2">
-          <span className="text-xl">✨</span>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <div className="w-7 h-7 rounded-lg bg-forest-50 dark:bg-ink-900 text-forest-700 dark:text-forest-300 flex items-center justify-center">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <h3 className="text-lg font-bold text-ink-900 dark:text-ink-50 tracking-tight">
             Optimized Deliverable
           </h3>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/60">
+          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-forest-50 text-forest-800 dark:bg-ink-900 dark:text-forest-300 border border-forest-200 dark:border-ink-700">
             Production Ready
           </span>
         </div>
@@ -78,8 +80,8 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
             variant="outline"
             size="sm"
             onClick={handleCopy}
-            leftIcon={copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-            className={copied ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : ''}
+            leftIcon={copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+            className={copied ? 'border-emerald-600 text-emerald-700' : ''}
           >
             {copied ? 'Copied' : 'Copy'}
           </Button>
@@ -104,7 +106,7 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
             disabled={isSaving}
             leftIcon={
               isSaved ? (
-                <BookmarkCheck className="w-4 h-4 text-sky-600" />
+                <BookmarkCheck className="w-4 h-4 text-forest-700 dark:text-forest-400" />
               ) : (
                 <Bookmark className="w-4 h-4" />
               )
@@ -117,14 +119,14 @@ export const ImprovedPromptCard: React.FC<ImprovedPromptCardProps> = ({
 
       {/* Output Content Container */}
       <div className="relative group">
-        <div className="p-5 rounded-xl bg-sky-50/40 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-sm md:text-base leading-relaxed text-slate-800 dark:text-slate-200 font-normal whitespace-pre-wrap select-all font-sans">
+        <div className="p-5 rounded-xl bg-parchment-50 dark:bg-ink-900/80 border border-parchment-200 dark:border-ink-700 text-sm md:text-base leading-relaxed text-ink-900 dark:text-ink-100 font-normal whitespace-pre-wrap select-all font-sans">
           {improvedPrompt}
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <span>Ready to copy directly into ChatGPT, Claude, Gemini, or Meta Llama.</span>
-        <span className="font-mono">{improvedPrompt.length} characters</span>
+      <div className="mt-4 flex items-center justify-between text-xs text-ink-500 dark:text-ink-400">
+        <span>Ready to paste directly into ChatGPT, Claude, Gemini, or Meta Llama.</span>
+        <span className="font-mono text-ink-600 dark:text-ink-300">{improvedPrompt.length} characters</span>
       </div>
     </div>
   );

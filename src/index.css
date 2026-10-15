@@ -4,41 +4,55 @@
 
 @layer base {
   body {
-    @apply font-sans bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+    @apply font-sans bg-parchment-50 text-ink-900 dark:bg-ink-950 dark:text-ink-50 antialiased selection:bg-forest-700 selection:text-parchment-50;
   }
 
-  /* Custom scrollbar for modern sleek look */
+  /* Refined, quiet scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+    @apply bg-parchment-300 dark:bg-ink-700 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-600;
+    @apply bg-parchment-400 dark:bg-ink-600;
   }
 
-  /* Accessible focus rings */
+  /* Clear, accessible keyboard focus rings */
   :focus-visible {
-    @apply outline-none ring-2 ring-sky-500 ring-offset-2 dark:ring-offset-slate-950;
+    @apply outline-none ring-2 ring-forest-700 ring-offset-2 ring-offset-parchment-50 dark:ring-forest-400 dark:ring-offset-ink-950;
   }
 }
 
 @layer utilities {
+  /* Restrained, mature typographic emphasis */
+  .editorial-title {
+    @apply tracking-tight font-extrabold text-ink-900 dark:text-ink-50;
+  }
+
+  .editorial-card {
+    @apply bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700 rounded-2xl shadow-xs;
+  }
+
+  .editorial-well {
+    @apply bg-parchment-100/70 dark:bg-ink-900/60 border border-parchment-200 dark:border-ink-700/70;
+  }
+
+  /* Redefine legacy AI gradient classes to solid, deliberate forest tone */
   .ai-gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600 dark:from-sky-400 dark:via-sky-300 dark:to-blue-400;
+    @apply text-forest-700 dark:text-forest-300 font-extrabold;
   }
 
   .ai-gradient-bg {
-    @apply bg-gradient-to-r from-sky-600 via-sky-500 to-blue-600;
+    @apply bg-forest-700 dark:bg-forest-600;
   }
 
   .ai-glass-card {
-    @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-sky-100 dark:border-slate-800 shadow-sm;
+    @apply bg-white/95 dark:bg-ink-800/95 border border-parchment-200 dark:border-ink-700 shadow-xs;
   }
 }
 
@@ -56,7 +70,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -65,11 +79,11 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

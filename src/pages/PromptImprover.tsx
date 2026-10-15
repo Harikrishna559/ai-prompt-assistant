@@ -13,7 +13,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 export const PromptImprover: React.FC = () => {
   const location = useLocation();
 
-  // Initial state check from location navigation (e.g. coming from Templates)
+  // Initial state check from location navigation (e.g. coming from Templates or History)
   const initialPrompt = location.state?.templatePrompt || '';
   const initialTaskType = (location.state?.taskType as TaskType) || 'General';
 
@@ -106,13 +106,13 @@ export const PromptImprover: React.FC = () => {
       setIsSaved(true);
       setSaveMessage({
         type: 'success',
-        text: 'Prompt saved to your browser history!',
+        text: 'Prompt saved to your browser session history!',
       });
       return true;
     } catch {
       setSaveMessage({
         type: 'error',
-        text: 'Failed to save prompt. Please try again.',
+        text: 'Failed to save prompt to browser storage.',
       });
       return false;
     } finally {
@@ -129,37 +129,37 @@ export const PromptImprover: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-9">
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-700 dark:text-sky-300 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-          <span>Interactive AI Prompt Improver</span>
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-forest-50 dark:bg-ink-900 border border-forest-200/80 dark:border-ink-700 text-forest-800 dark:text-forest-300 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+          <span>Interactive Prompt Optimizer</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-ink-900 dark:text-ink-50 tracking-tight">
           Enhance & Refine Your Prompt
         </h1>
-        <p className="text-base text-slate-600 dark:text-slate-400">
-          Transform your vague request into a high-performance, structured AI prompt.
+        <p className="text-sm sm:text-base text-ink-500 dark:text-ink-400">
+          Turn your raw thought into a structured, production-grade AI prompt blueprint.
         </p>
       </div>
 
       {/* Template applied indicator banner */}
       {location.state?.templateTitle && (
-        <div className="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center justify-between text-xs text-sky-700 dark:text-sky-300">
+        <div className="p-3.5 rounded-xl bg-forest-50 dark:bg-ink-900 border border-forest-200 dark:border-ink-700 flex items-center justify-between text-xs text-forest-800 dark:text-forest-300">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-sky-500" />
+            <Layers className="w-4 h-4 text-forest-700 dark:text-forest-400" />
             <span>
-              Loaded Template: <strong>{location.state.templateTitle}</strong>
+              Loaded Blueprint: <strong>{location.state.templateTitle}</strong>
             </span>
           </div>
-          <span className="text-sky-600 font-medium">Ready to customize</span>
+          <span className="font-semibold text-forest-700 dark:text-forest-400">Ready to customize</span>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-sm text-rose-700 dark:text-rose-400 animate-fade-in">
+        <div className="p-4 rounded-xl bg-terracotta-50 dark:bg-ink-900 border border-terracotta-200 dark:border-terracotta-900/60 flex items-center gap-3 text-sm text-terracotta-800 dark:text-terracotta-300 animate-fade-in">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -170,8 +170,8 @@ export const PromptImprover: React.FC = () => {
         <div
           className={`p-4 rounded-xl flex items-center justify-between gap-3 text-sm animate-fade-in ${
             saveMessage.type === 'error'
-              ? 'bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-400'
-              : 'bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-400'
+              ? 'bg-terracotta-50 dark:bg-ink-900 border border-terracotta-200 dark:border-terracotta-900/60 text-terracotta-800 dark:text-terracotta-300'
+              : 'bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-300'
           }`}
         >
           <div className="flex items-center gap-2.5">
@@ -204,25 +204,25 @@ export const PromptImprover: React.FC = () => {
 
       {/* Intentional Empty State before first improvement */}
       {!isLoading && !analysis && (
-        <div className="bg-white/80 dark:bg-slate-900/80 border border-dashed border-sky-200 dark:border-slate-800 rounded-2xl p-8 sm:p-12 text-center animate-fade-in shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto mb-4 border border-sky-100 dark:border-sky-900/40">
-            <Wand2 className="w-6 h-6 text-sky-500" />
+        <div className="bg-white dark:bg-ink-800 border border-dashed border-parchment-300 dark:border-ink-700 rounded-2xl p-8 sm:p-12 text-center animate-fade-in shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-forest-50 dark:bg-ink-900 text-forest-700 dark:text-forest-300 flex items-center justify-center mx-auto mb-3.5 border border-forest-100 dark:border-ink-700">
+            <Wand2 className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
-            Ready to enhance your prompt?
+          <h3 className="text-lg font-bold text-ink-900 dark:text-ink-50 mb-1">
+            Ready to optimize your prompt?
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-            Enter a rough idea above and click "Enhance Prompt Now" to see structured recommendations and quality scores.
+          <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 max-w-md mx-auto leading-relaxed">
+            Enter a rough instruction above and click "Enhance Prompt Now" to inspect structured improvements and quality grades.
           </p>
-          <div className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-950/40 px-3.5 py-1.5 rounded-full border border-sky-200/60 dark:border-sky-800/60">
-            <span>Tip: Select a specific category like Coding or Business for best results</span>
+          <div className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-forest-800 dark:text-forest-300 bg-forest-50/80 dark:bg-ink-900 px-3.5 py-1.5 rounded-full border border-forest-200/60 dark:border-ink-700">
+            <span>Tip: Select a domain category like Coding or Business for tailored persona framing</span>
           </div>
         </div>
       )}
 
       {/* Analysis Results Display */}
       {!isLoading && analysis && (
-        <div className="space-y-8 animate-fade-in pt-4">
+        <div className="space-y-8 animate-fade-in pt-3">
           {/* Main Improved Prompt Card */}
           <ImprovedPromptCard
             improvedPrompt={analysis.improvedPrompt}

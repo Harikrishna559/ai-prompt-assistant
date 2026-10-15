@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Navbar } from './components/layout/Navbar';
+import { Sidebar } from './components/layout/Sidebar';
+import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Home } from './pages/Home';
 import { PromptImprover } from './pages/PromptImprover';
 import { Templates } from './pages/Templates';
+import { Dashboard } from './pages/Dashboard';
 import { History } from './pages/History';
 import { About } from './pages/About';
 
@@ -20,22 +22,46 @@ const ScrollToTop: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-parchment-50 text-ink-900 dark:bg-ink-950 dark:text-ink-50 transition-colors duration-150 selection:bg-forest-700 selection:text-parchment-50 flex">
       <ScrollToTop />
-      <Navbar />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/improve" element={<PromptImprover />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/about" element={<About />} />
-          {/* Catch-all fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </main>
-      <Footer />
+
+      {/* Left Sidebar Navigation */}
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* Main Content Area to the right of Sidebar */}
+      <div
+        className={`flex-1 flex flex-col min-h-screen w-full transition-all duration-200 ${
+          isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
+        }`}
+      >
+        <Header
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        />
+
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/improve" element={<PromptImprover />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/about" element={<About />} />
+            {/* Catch-all fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </main>
+
+        <Footer />
+      </div>
     </div>
   );
 };

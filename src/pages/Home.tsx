@@ -63,30 +63,27 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className="space-y-24 py-8 md:py-16">
+    <div className="space-y-20 py-8 md:py-14">
       {/* HERO SECTION */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Subtle decorative background glow */}
-        <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
-          <div className="w-[600px] h-[600px] bg-gradient-to-tr from-sky-400 via-sky-500 to-blue-600 blur-[140px] rounded-full" />
-        </div>
-
-        <div className="text-center max-w-4xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-xs font-semibold text-sky-700 dark:text-sky-300">
-            <Sparkles className="w-3.5 h-3.5 text-sky-500" />
-            <span>Powered by Groq Cloud LPUs</span>
+      <section className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto space-y-5">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-50 dark:bg-ink-900 border border-forest-200/80 dark:border-ink-700 text-xs font-semibold text-forest-800 dark:text-forest-300">
+            <span className="w-2 h-2 rounded-full bg-forest-700 dark:bg-forest-400" />
+            <span>Powered by Groq Cloud • GPT-OSS 120B</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.15]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-ink-900 dark:text-ink-50 tracking-tight leading-[1.12]">
             Turn Simple Ideas into{' '}
-            <span className="ai-gradient-text">Powerful AI Prompts.</span>
+            <span className="text-forest-700 dark:text-forest-300 underline decoration-terracotta-400/60 decoration-wavy decoration-2 underline-offset-8">
+              Powerful AI Prompts.
+            </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Elevate your AI interactions with precision role framing, output constraints, and instant quality scoring — 100% free and private.
+          <p className="text-base sm:text-lg text-ink-500 dark:text-ink-400 max-w-2xl mx-auto leading-relaxed">
+            Elevate your AI interactions with precision role framing, output constraints, and instant quality scoring — 100% free, private, and registration-free.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
             <Button
               variant="primary"
               size="lg"
@@ -104,73 +101,73 @@ export const Home: React.FC = () => {
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-xs font-medium text-slate-500 dark:text-slate-400 pt-3">
+          <div className="flex items-center justify-center gap-6 text-xs font-medium text-ink-500 dark:text-ink-400 pt-2">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-sky-500" /> No Registration Needed
+              <ShieldCheck className="w-4 h-4 text-forest-700 dark:text-forest-400" /> No Account Required
             </span>
             <span className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-sky-500" /> Local Browser History
+              <Zap className="w-4 h-4 text-forest-700 dark:text-forest-400" /> 100% Private Local Storage
             </span>
           </div>
         </div>
 
-        {/* Hero Prompt Visual Mockup */}
-        <div className="mt-14 max-w-4xl mx-auto">
-          <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl border border-sky-100 dark:border-slate-800 shadow-xl overflow-hidden">
+        {/* Hero Prompt Visual Architecture Showcase */}
+        <div className="mt-12 max-w-4xl mx-auto">
+          <div className="bg-white dark:bg-ink-800 rounded-2xl border border-parchment-200 dark:border-ink-700/80 shadow-sm overflow-hidden">
             {/* Header bar */}
-            <div className="px-5 py-3.5 bg-slate-50 dark:bg-slate-950 border-b border-sky-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-5 py-3.5 bg-parchment-100 dark:bg-ink-900 border-b border-parchment-200 dark:border-ink-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-sky-400/80" />
-                <span className="w-3 h-3 rounded-full bg-blue-400/80" />
-                <span className="w-3 h-3 rounded-full bg-emerald-400/80" />
-                <span className="ml-2 text-xs font-mono text-slate-400">groq_prompt_optimizer.ts</span>
+                <span className="w-3 h-3 rounded-full bg-parchment-300 dark:bg-ink-700" />
+                <span className="w-3 h-3 rounded-full bg-parchment-300 dark:bg-ink-700" />
+                <span className="w-3 h-3 rounded-full bg-parchment-300 dark:bg-ink-700" />
+                <span className="ml-2 text-xs font-mono text-ink-500">groq_prompt_pipeline.ts</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-sky-600 dark:text-sky-400 font-semibold">
+              <div className="flex items-center gap-2 text-xs text-forest-700 dark:text-forest-300 font-semibold">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Live Optimization Pipeline</span>
+                <span>Structural Optimization Pipeline</span>
               </div>
             </div>
 
             {/* Visual Workflow comparison */}
             <div className="p-6 md:p-8 space-y-6">
               {/* Original Prompt Card */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800">
+              <div className="p-4 rounded-xl bg-parchment-50 dark:bg-ink-900/60 border border-parchment-200 dark:border-ink-700">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Original Prompt
+                  <span className="text-xs font-bold uppercase tracking-wider text-ink-400 dark:text-ink-500">
+                    Raw User Prompt
                   </span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-400 font-medium">
-                    Vague & Unconstrained
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-terracotta-50 text-terracotta-800 dark:bg-terracotta-950/40 dark:text-terracotta-300 font-semibold border border-terracotta-200 dark:border-terracotta-900/40">
+                    Vague & Unconstrained (Score: 35)
                   </span>
                 </div>
-                <p className="text-base font-medium text-slate-700 dark:text-slate-300 font-mono">
+                <p className="text-sm font-medium text-ink-800 dark:text-ink-200 font-mono">
                   "make a website"
                 </p>
               </div>
 
               {/* Arrow + AI Analysis Badge */}
               <div className="flex items-center justify-center gap-3">
-                <div className="h-px bg-sky-100 dark:bg-slate-800 flex-1" />
-                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 text-xs font-semibold text-sky-700 dark:text-sky-300 shadow-xs animate-pulse">
-                  <ArrowDown className="w-3.5 h-3.5" />
-                  <span>Advanced AI Prompt Engineering Framework</span>
+                <div className="h-px bg-parchment-200 dark:bg-ink-700 flex-1" />
+                <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-50 dark:bg-ink-900 border border-forest-200 dark:border-ink-700 text-xs font-semibold text-forest-800 dark:text-forest-300">
+                  <ArrowDown className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+                  <span>Groq AI Prompt Engineering Framework</span>
                 </div>
-                <div className="h-px bg-sky-100 dark:bg-slate-800 flex-1" />
+                <div className="h-px bg-parchment-200 dark:bg-ink-700 flex-1" />
               </div>
 
               {/* Improved Prompt Card */}
-              <div className="p-5 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800">
+              <div className="p-5 rounded-xl bg-forest-50/40 dark:bg-ink-900/40 border border-forest-600/40 dark:border-forest-500/40">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Improved Prompt
+                  <span className="text-xs font-bold uppercase tracking-wider text-forest-800 dark:text-forest-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+                    Structured Prompt Deliverable
                   </span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400 font-semibold">
-                    Quality Score: 94/100 (+52%)
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
+                    Quality Score: 94/100 (+59 pts)
                   </span>
                 </div>
-                <p className="text-sm md:text-base text-slate-800 dark:text-slate-200 leading-relaxed font-sans">
-                  "Act as a Senior Lead Developer. Create a responsive personal portfolio website using React and Tailwind CSS. Include a navigation bar, hero section with call-to-action, projects showcase, technical skills grid, contact form with validation, and responsive mobile layout."
+                <p className="text-xs sm:text-sm text-ink-900 dark:text-ink-100 leading-relaxed font-sans">
+                  "Act as a Senior Frontend Architect. Create a responsive personal portfolio website using React and Tailwind CSS. Include a navigation bar, hero section with call-to-action, projects showcase, technical skills grid, contact form with validation, and responsive mobile layout."
                 </p>
               </div>
             </div>
@@ -179,57 +176,57 @@ export const Home: React.FC = () => {
       </section>
 
       {/* WORKFLOW SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            How It Works
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink-900 dark:text-ink-50 tracking-tight">
+            How The Optimization Engine Works
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
-            Four simple steps to turn low-quality prompt outputs into deterministic, high-yield results.
+          <p className="text-sm text-ink-500 dark:text-ink-400 mt-2">
+            Four deterministic steps to turn raw prompts into high-yield, production-ready deliverables.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[
             {
-              step: '1',
-              title: 'Input Raw Idea',
-              desc: 'Type your rough thought, basic command, or question into the improver tool.',
+              step: '01',
+              title: 'Raw Idea Input',
+              desc: 'Enter your rough concept, brief command, or preliminary instruction.',
               icon: <Terminal className="w-5 h-5" />,
             },
             {
-              step: '2',
-              title: 'Deep AI Audit',
-              desc: 'Engine analyzes clarity, context, specificity, and completeness boundaries.',
+              step: '02',
+              title: 'Four-Pillar Audit',
+              desc: 'Groq engine benchmarks clarity, context, specificity, and completeness constraints.',
               icon: <SlidersHorizontal className="w-5 h-5" />,
             },
             {
-              step: '3',
-              title: 'Architect Structure',
-              desc: 'Injects role persona, operational bounds, and explicit deliverable format.',
+              step: '03',
+              title: 'Role & Format Framing',
+              desc: 'Injects domain expertise, negative guardrails, and deterministic output schema.',
               icon: <Wand2 className="w-5 h-5" />,
             },
             {
-              step: '4',
+              step: '04',
               title: 'Copy & Execute',
-              desc: 'Copy the ready-to-paste prompt into ChatGPT, Claude, Gemini, or Llama.',
+              desc: 'Copy the ready-to-paste instruction directly into your LLM of choice.',
               icon: <Award className="w-5 h-5" />,
             },
           ].map((item) => (
             <div
               key={item.step}
-              className="relative flex flex-col items-center text-center p-6 bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-300 dark:hover:border-sky-700 transition-all"
+              className="flex flex-col p-6 bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 rounded-2xl shadow-xs hover:border-parchment-400 dark:hover:border-ink-600 transition-all"
             >
-              <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-base mb-4 shadow-xs border border-sky-100 dark:border-sky-900/40">
+              <div className="w-10 h-10 rounded-xl bg-forest-50 dark:bg-ink-900 text-forest-700 dark:text-forest-300 flex items-center justify-center font-bold text-sm mb-4 border border-forest-100 dark:border-ink-700">
                 {item.icon}
               </div>
-              <span className="text-xs font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider mb-1">
+              <span className="text-[11px] font-mono font-bold text-terracotta-600 dark:text-terracotta-400 uppercase tracking-wider mb-1">
                 Step {item.step}
               </span>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+              <h3 className="text-base font-bold text-ink-900 dark:text-ink-50 mb-1.5">
                 {item.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
                 {item.desc}
               </p>
             </div>
@@ -238,60 +235,60 @@ export const Home: React.FC = () => {
       </section>
 
       {/* FEATURES SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            Built for High-Yield AI Prompting
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink-900 dark:text-ink-50 tracking-tight">
+            Crafted for Professional AI Prompting
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
-            Everything you need to write precision instructions for any large language model.
+          <p className="text-sm text-ink-500 dark:text-ink-400 mt-2">
+            Eliminate prompt ambiguity and get deterministic, high-quality results from any language model.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[
             {
-              title: 'Groq Cloud Intelligence',
-              desc: 'Powered by high-speed Groq LPUs for deep instruction analysis and prompt enhancement.',
-              icon: <Wand2 className="w-6 h-6 text-sky-500" />,
+              title: 'Groq Cloud LPUs',
+              desc: 'High-speed OpenAI-compatible processing running the openai/gpt-oss-120b model with zero-failure fallback.',
+              icon: <Wand2 className="w-5 h-5 text-forest-700 dark:text-forest-400" />,
             },
             {
               title: 'Objective Quality Scoring',
-              desc: 'Get an instant 0-100 grade across clarity, context, specificity, and completeness metrics.',
-              icon: <Award className="w-6 h-6 text-sky-500" />,
+              desc: 'Instant 0-100 rubric across clarity, context, specificity, and completeness metrics.',
+              icon: <Award className="w-5 h-5 text-forest-700 dark:text-forest-400" />,
             },
             {
-              title: 'Expert Persona Injection',
-              desc: 'Automatically establishes authoritative roles (e.g. Senior Architect, Executive Editor).',
-              icon: <Sparkles className="w-6 h-6 text-sky-500" />,
+              title: 'Role Persona Architecture',
+              desc: 'Automatically establishes authoritative expertise, context boundaries, and operational guardrails.',
+              icon: <Sparkles className="w-5 h-5 text-forest-700 dark:text-forest-400" />,
             },
             {
               title: 'Actionable Optimization Tips',
-              desc: 'Receive clear, practical advice on what was improved and why it yields better output.',
-              icon: <Lightbulb className="w-6 h-6 text-amber-500" />,
+              desc: 'Understand exactly why the improved prompt works better so you learn the principles of prompt engineering.',
+              icon: <Lightbulb className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
             },
             {
-              title: 'Pre-Engineered Templates',
-              desc: 'Access battle-tested prompt blueprints for Coding, Education, Business, and Career.',
-              icon: <Layers className="w-6 h-6 text-emerald-500" />,
+              title: 'Pre-Engineered Blueprints',
+              desc: 'Battle-tested prompt patterns spanning Coding, Data Analysis, Writing, Business, and Career.',
+              icon: <Layers className="w-5 h-5 text-forest-700 dark:text-forest-400" />,
             },
             {
-              title: 'Local Storage History',
-              desc: 'All saved prompts remain 100% private in your browser with zero server syncing.',
-              icon: <HistoryIcon className="w-6 h-6 text-rose-500" />,
+              title: 'Local Privacy Guarantee',
+              desc: 'Prompt history is saved exclusively in your browser localStorage. Zero remote tracking or data storage.',
+              icon: <HistoryIcon className="w-5 h-5 text-terracotta-600 dark:text-terracotta-400" />,
             },
           ].map((feature, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-sky-200 dark:hover:border-slate-700 transition-all duration-200"
+              className="p-6 rounded-2xl bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700/80 shadow-xs hover:border-parchment-400 dark:hover:border-ink-600 transition-all"
             >
-              <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-slate-800/80 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-forest-50 dark:bg-ink-900 flex items-center justify-center mb-3.5 border border-forest-100 dark:border-ink-700">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+              <h3 className="text-base font-bold text-ink-900 dark:text-ink-50 mb-1.5">
                 {feature.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-ink-500 dark:text-ink-400 leading-relaxed">
                 {feature.desc}
               </p>
             </div>
@@ -301,14 +298,14 @@ export const Home: React.FC = () => {
 
       {/* LIVE DEMO SHOWCASE SECTION */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-b from-sky-50/50 to-white dark:from-slate-900 dark:to-slate-950 p-6 md:p-10 rounded-3xl border border-sky-100 dark:border-slate-800 shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="bg-parchment-100/70 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700/80 p-6 md:p-8 rounded-3xl shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400">
-                Interactive Showcase
+              <span className="text-xs font-bold uppercase tracking-wider text-forest-700 dark:text-forest-400">
+                Live Studio Comparison
               </span>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
-                See the Optimization Difference
+              <h3 className="text-xl sm:text-2xl font-bold text-ink-900 dark:text-ink-50 mt-1">
+                Before & After Optimization
               </h3>
             </div>
             <div className="flex items-center gap-2">
@@ -317,56 +314,56 @@ export const Home: React.FC = () => {
                 size="sm"
                 onClick={handleNextDemo}
               >
-                Try Another Sample
+                Next Sample Pattern
               </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Original */}
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <div className="p-5 rounded-2xl bg-white dark:bg-ink-800 border border-parchment-200 dark:border-ink-700">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Original Prompt
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-400">
+                  Original Raw Prompt
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-terracotta-50 text-terracotta-800 dark:bg-terracotta-950/40 dark:text-terracotta-300">
                   Score: 35/100
                 </span>
               </div>
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 text-sm font-mono text-slate-700 dark:text-slate-300 min-h-[140px] flex items-center">
+              <div className="p-3.5 rounded-xl bg-parchment-50 dark:bg-ink-900 border border-parchment-200 dark:border-ink-700 text-xs sm:text-sm font-mono text-ink-800 dark:text-ink-200 min-h-[120px] flex items-center">
                 "{activeDemo.original}"
               </div>
             </div>
 
             {/* Improved */}
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-sky-200 dark:border-sky-900/60 shadow-xs">
+            <div className="p-5 rounded-2xl bg-white dark:bg-ink-800 border border-forest-600/40 dark:border-forest-500/40 shadow-xs">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Improved Prompt
+                <span className="text-xs font-bold uppercase tracking-wider text-forest-800 dark:text-forest-300 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-forest-700 dark:text-forest-400" />
+                  Optimized Prompt
                 </span>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
                   Score: {activeDemo.score}/100
                 </span>
               </div>
-              <div className="p-4 rounded-xl bg-sky-50/40 dark:bg-slate-950 border border-sky-100 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 min-h-[140px] leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-forest-50/30 dark:bg-ink-900 border border-forest-100 dark:border-ink-700 text-xs sm:text-sm text-ink-900 dark:text-ink-100 min-h-[120px] leading-relaxed">
                 "{activeDemo.improved}"
               </div>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-sky-100 dark:border-slate-800">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              Demo sample {demoIndex + 1} of {DEMO_ITEMS.length} ({activeDemo.category})
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-parchment-200 dark:border-ink-700">
+            <span className="text-xs text-ink-500 dark:text-ink-400">
+              Pattern {demoIndex + 1} of {DEMO_ITEMS.length} ({activeDemo.category})
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyDemo}
-                leftIcon={copiedDemo ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                leftIcon={copiedDemo ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
               >
-                {copiedDemo ? 'Copied' : 'Copy Sample'}
+                {copiedDemo ? 'Copied' : 'Copy Blueprint'}
               </Button>
               <Button
                 variant="primary"
@@ -382,21 +379,21 @@ export const Home: React.FC = () => {
 
       {/* CTA SECTION */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 p-8 sm:p-12 text-center text-white shadow-xl">
-          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+        <div className="relative overflow-hidden rounded-3xl bg-forest-800 dark:bg-forest-900 p-8 sm:p-12 text-center text-parchment-50 shadow-md border border-forest-700">
+          <div className="relative z-10 max-w-2xl mx-auto space-y-3.5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Ready to Upgrade Your AI Prompts?
             </h2>
-            <p className="text-sky-100 text-base sm:text-lg">
-              Generate structured, copy-paste ready prompts in seconds without registering.
+            <p className="text-parchment-200 text-sm sm:text-base leading-relaxed">
+              Generate structured, copy-paste ready prompt blueprints in seconds. 100% private in your browser with zero registration required.
             </p>
-            <div className="pt-4">
+            <div className="pt-3">
               <Button
                 variant="secondary"
                 size="lg"
                 onClick={() => navigate('/improve')}
-                className="bg-white text-slate-900 hover:bg-slate-50 shadow-md font-semibold"
-                rightIcon={<ArrowRight className="w-4 h-4 text-sky-600" />}
+                className="bg-parchment-50 text-ink-900 hover:bg-parchment-100 font-bold border-none"
+                rightIcon={<ArrowRight className="w-4 h-4 text-forest-800" />}
               >
                 Improve Prompt Now
               </Button>
